@@ -47,3 +47,19 @@ def get_log_all(
 ):
     log_info=db.query(Test_log).filter(Test_log.info != json.dumps("raw_file")).all()
     return log_info
+
+def get_error_all(
+    *,
+    db:Session,
+):
+    error_info=db.query(Error).all()
+
+    error_dic={}
+    error_dic["Success"]=len(db.query(Test_log).filter(Test_log.info != json.dumps("raw_file")).all())
+    for error in error_info:
+        error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
+        if error_dic:
+            error_dic[error_name] +=1
+        else:
+            error_dic[error_name] = 1
+    return error_dic

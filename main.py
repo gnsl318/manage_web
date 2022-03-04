@@ -95,23 +95,47 @@ async def Abdomen(request:Request):
 	print(label_list)
 
 	return templates.TemplateResponse('charts.html',{'request':request,'category':category,'label_list':label_list,'label_count':label_count})
-@app.get("/Abdomen/data")
-async def data():
+
+def label_work(data):
 	logs = get_log_all(db=db_session)
-	work={}
-	work_day = ""
-	counter = collections.Counter()
-	for log in logs:
-		counter.update(json.loads(log.info))
-		if work_day != log.work_day:
-			work_count =1
-			work_day = log.work_day
-		else:
-			work_count +=1
-			work[log.work_day]=work_count
-	print(dict(counter))
-	print(sorted(dict(counter).items()))
-	label = dict(sorted(dict(counter).items()))
+	if data == "label":
+		counter = collections.Counter()
+		for log in logs:
+			counter.update(json.loads(log.info))
+		label = dict(sorted(dict(counter).items()))
+		return label
+	elif data == "work":
+		work={}
+		work_day = ""
+		for log in logs:
+			log_work_day = log.work_day.strftime("%Y-%m-%d")
+			if work_day != log_work_day:
+				work_count =1
+				work_day = log_work_day
+			else:
+				work_count +=1
+				work[log_work_day]=work_count
+		return work
+
+
+
+
+
+
+@app.get("/Abdomen/label")
+async def data():
+	label = label_work("label")
 	print(label)
-	
 	return label
+
+@app.get("/Abdomen/work")
+async def data():
+	work = label_work("work")
+	print(work)
+	return work
+
+@app.get("/Abdomen/error")
+async def error():
+	error = get_error_all(db=db_session)
+	print(error)
+	return error
