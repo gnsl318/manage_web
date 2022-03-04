@@ -92,4 +92,22 @@ async def Abdomen(request:Request):
 	print(work)
 	label_list = list(label.keys())
 	label_count = list(label.values())
+	print(label_list)
+
 	return templates.TemplateResponse('charts.html',{'request':request,'category':category,'label_list':label_list,'label_count':label_count})
+@app.get("/Abdomen/data")
+async def data():
+	logs = get_log_all(db=db_session)
+	work={}
+	work_day = ""
+	counter = collections.Counter()
+	for log in logs:
+		counter.update(json.loads(log.info))
+		if work_day != log.work_day:
+			work_count =1
+			work_day = log.work_day
+		else:
+			work_count +=1
+			work[log.work_day]=work_count
+	label=dict(counter)
+	return json.dumps(label)

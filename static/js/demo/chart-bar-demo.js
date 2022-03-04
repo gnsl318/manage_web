@@ -27,22 +27,22 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   return s.join(dec);
 }
 
+
 // Bar Chart Example
 var ctx = document.getElementById("Label_balance");
-var label_list = $(this).data("label_list");
-var label_count = $(this).data("label_count");
 var myBarChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: label_list,
+    labels: ["test"],
     datasets: [{
       label: "Revenue",
       backgroundColor: "#4e73df",
       hoverBackgroundColor: "#2e59d9",
       borderColor: "#4e73df",
-      data: label_count,
+      data: [0],
     }],
   },
+  
   options: {
     maintainAspectRatio: false,
     layout: {
@@ -111,3 +111,21 @@ var myBarChart = new Chart(ctx, {
     },
   }
 });
+// const get_api = async() =>{
+//   let data = await fetch("http://127.0.0.1:8000/Abdomen/data")
+//   console.log(data.json(),'data')
+//   myBarChart.data.labels = Object.keys(data.json());
+//   myBarChart.data.data = Object.values(data.json());
+// }
+const get_api = () => {
+  fetch("http://127.0.0.1:8000/Abdomen/data")
+  .then((response) => response.json())
+  .then((data) => {
+    myBarChart.data.labels = Object.keys(data);
+    console.log(Object.keys(data),'key')
+    //myBarChart.data.data = Object.values(data);
+    //console.log(Object.values(data),'value');
+  });
+}
+get_api()
+
