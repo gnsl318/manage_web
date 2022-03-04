@@ -109,5 +109,9 @@ async def data():
 		else:
 			work_count +=1
 			work[log.work_day]=work_count
-	label=dict(counter)
-	return json.dumps(label)
+	print(dict(counter))
+	print(sorted(dict(counter).items()))
+	label = dict(sorted(dict(counter).items()))
+	print(label)
+	
+	return label
