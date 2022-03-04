@@ -26,17 +26,11 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   }
   return s.join(dec);
 }
-function request(){
-  fetch('http://127.0.0.1:8000/Abdomen/data',{
-    method:"GET",
-  })
-  .then(response => {
-    return response.json();
-  })
-}
-request()
+
+
 // Area Chart Example
 var ctx = document.getElementById("Work_count");
+
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {

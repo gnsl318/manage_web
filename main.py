@@ -75,10 +75,6 @@ async def chart(request:Request):
 
 @app.get("/Abdomen")
 async def Abdomen(request:Request):
-	return templates.TemplateResponse('charts.html',{'request':request,'category':category})
-
-@app.get("/Abdomen/data")
-async def Abdomen_data(request:Request):
 	logs = get_log_all(db=db_session)
 	work={}
 	work_day = ""
@@ -93,4 +89,7 @@ async def Abdomen_data(request:Request):
 			work[log.work_day]=work_count
 	label=dict(counter)
 	print(label)
-	return label
+	print(work)
+	label_list = list(label.keys())
+	label_count = list(label.values())
+	return templates.TemplateResponse('charts.html',{'request':request,'category':category,'label_list':label_list,'label_count':label_count})
