@@ -4,12 +4,13 @@ from sqlalchemy.orm import relationship
 import datetime
 import sys
 import os
+from db.session import Base
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from db.session import engine
 
-Base = declarative_base()
+
+
 class User(Base):
   __tablename__ = 'users'
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -75,6 +76,4 @@ class Error(Base):
   user_id = Column(Integer,ForeignKey("users.id"))
   user =  relationship("User")
   error_day = Column(Date)
-
-if __name__ == "__main__":
-  Base.metadata.create_all(bind=engine)
+  

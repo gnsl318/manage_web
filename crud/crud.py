@@ -12,7 +12,7 @@ def create_part(
     db : Session,
     part_name:str,
     ):
-
+    
     if db.query(Part).filter(Part.part_name == part_name).first()==None:
         new_part = Part(
             part_name = part_name,
@@ -63,3 +63,12 @@ def get_error_all(
         else:
             error_dic[error_name] = 1
     return error_dic
+
+def get_part_name(
+    *,
+    db:Session,
+    part:str,
+    name:str
+): 
+    print(part,name)
+    return True

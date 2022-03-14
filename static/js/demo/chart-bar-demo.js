@@ -30,16 +30,18 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 
 // Bar Chart Example
 var ctx = document.getElementById("Label_balance");
+var data = $("#Label_balance").data("label");
+var real_data = JSON.parse(JSON.stringify(data))
 var myBarChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: ["test"],
+    labels: Object.keys(real_data),
     datasets: [{
       label: "Revenue",
       backgroundColor: "#4e73df",
       hoverBackgroundColor: "#2e59d9",
       borderColor: "#4e73df",
-      data: [0],
+      data: Object.values(real_data),
     }],
   },
   

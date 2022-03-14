@@ -30,11 +30,12 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 
 // Area Chart Example
 var ctx = document.getElementById("Work_count");
-
+var data = $("#Work_count").data("work");
+var real_data = JSON.parse(JSON.stringify(data))
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
-    labels: [],
+    labels: Object.keys(real_data),
     datasets: [{
       label: "Earnings",
       lineTension: 0.3,
@@ -48,7 +49,7 @@ var myLineChart = new Chart(ctx, {
       pointHoverBorderColor: "rgba(78, 115, 223, 1)",
       pointHitRadius: 10,
       pointBorderWidth: 2,
-      data: [],
+      data: Object.values(real_data),
     }],
   },
   options: {
