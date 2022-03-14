@@ -71,6 +71,8 @@ class Error(Base):
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
   raw_id = Column(Integer,ForeignKey("raw.id"))
   raw = relationship("Raw")
+  part_id = Column(Integer,ForeignKey("part.id"))
+  part = relationship("Part")
   error_id =Column(Integer,ForeignKey("error_list.id"))
   error = relationship("Error_list")
   user_id = Column(Integer,ForeignKey("users.id"))

@@ -2,7 +2,7 @@ from http.client import HTTPException
 from fastapi import FastAPI,Request,status, Form, Header,Response
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from crud.crud import *
@@ -41,6 +41,7 @@ app.mount("/static",StaticFiles(directory="static"),name="static")
 
 @app.get("/favicon.ico")
 async def favicon():
+	print(os.path.join(os.getcwd(),"static/img/logo.ico"))
 	return FileResponse(os.path.join(os.getcwd(),"static/img/logo.ico"))
 
 def get_category():
@@ -93,13 +94,16 @@ async def home(request:Request):
 @app.get("/{part}")
 async def part(request:Request,part:str):
 	category = get_category()
-	label,work = await label_work()
-	error = get_error_all(db=db_session)
-	page_file = f"{part}_charts.html"
-	return templates.TemplateResponse(page_file,{'request':request,'category':category,'label':label,'work':work,'error':error})
+	label,work = await label_work(part,"total")
+	error = get_error_all(db=db_session,part=part)
+	page_file = f"total_charts.html"
+	return templates.TemplateResponse(page_file,{'request':request,'category':category,'label':label,'work':work,'error':error,'part':part})
 
-async def label_work():
-	logs = get_log_all(db=db_session)
+async def label_work(part,name):
+	if name == "total":
+		logs = get_log_all(db=db_session,part=part)
+	else:
+		logs = get_search_log(db=db_session,part=part,name=name)
 	counter = collections.Counter()
 	for log in logs:
 		counter.update(json.loads(log.info))
@@ -117,25 +121,18 @@ async def label_work():
 	return json.dumps(label),json.dumps(work)
 
 
-# @app.get("/{part}/{data}/")
-# async def data(part:str,data:str):
-# 	label = await label_work(data)
-# 	return label
-
-# @app.get("/{part}/error")
-# async def error(part:str):
-# 	error = get_error_all(db=db_session)
-# 	return error
-
-@app.post("/search")
-async def search(request:Request,search_name: str = Form(...)):
+@app.post("/{part}/search")
+async def search(request:Request,part:str,search_name: str = Form(...)):
 	category = get_category()
-	part = str(request.url).split("/")[-2]
-	print(part)
-	data={}
-	data['part']=part
-	data['name']=search_name
-	return templates.TemplateResponse('search_charts.html',{'request':request,'category':category,'data':data})
+	if get_name(db=db_session,name=search_name):
+		data={}
+		data['part']=part
+		data['name']=search_name
+		label,work = await label_work(part=part,name=search_name)
+		error = get_search_error(db=db_session,part=part,name=search_name)
+		return templates.TemplateResponse('search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
+	else:
+		return RedirectResponse(url=f"/{part}", status_code=302)
 
 @app.get("/{part}/search/{name}")
 async def search_name(part:str,name:str):

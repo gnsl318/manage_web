@@ -1,6 +1,6 @@
 
 from datetime import date
-from sqlalchemy import null, update
+from sqlalchemy import null, update, and_
 from sqlalchemy.orm import Session, load_only
 from models.base import *
 import datetime
@@ -44,18 +44,51 @@ def get_log(
 def get_log_all(
     *,
     db:Session,
+    part:str,
 ):
-    log_info=db.query(Test_log).filter(Test_log.info != json.dumps("raw_file")).all()
+    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    log_info=db.query(Test_log).filter(and_(Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id)).all()
     return log_info
 
 def get_error_all(
     *,
     db:Session,
+    part:str,
 ):
     error_info=db.query(Error).all()
 
     error_dic={}
-    error_dic["Success"]=len(db.query(Test_log).filter(Test_log.info != json.dumps("raw_file")).all())
+    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    error_dic["Success"]=len(db.query(Test_log).filter(and_(Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id)).all())
+    for error in error_info:
+        error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
+        if error_dic:
+            error_dic[error_name] +=1
+        else:
+            error_dic[error_name] = 1
+    return error_dic
+
+def get_search_log(
+    *,
+    db:Session,
+    part:str,
+    name:str,
+):
+    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    name_id = db.query(User).filter(User.name == name).first().id
+    log_info=db.query(Test_log).filter(and_(Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id),(Test_log.user_id==name_id)).all()
+    return log_info 
+def get_search_error(
+    *,
+    db:Session,
+    part:str,
+    name:str,
+):
+    error_info=db.query(Error).all()
+
+    error_dic={}
+    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    error_dic["Success"]=len(db.query(Test_log).filter(and_(Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id)).all())
     for error in error_info:
         error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
         if error_dic:
@@ -70,5 +103,14 @@ def get_part_name(
     part:str,
     name:str
 ): 
-    print(part,name)
     return True
+
+def get_name(
+    *,
+    db:Session,
+    name:str,
+):
+    if db.query(User).filter(User.name == name).first():
+        return True
+    else:
+        return False

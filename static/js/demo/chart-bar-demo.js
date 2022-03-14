@@ -72,7 +72,7 @@ var myBarChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: 3000,
+          max: Object.values(real_data).sort()[-1],
           maxTicksLimit: 10,
           padding: 10,
           // Include a dollar sign in the ticks
@@ -107,7 +107,7 @@ var myBarChart = new Chart(ctx, {
       callbacks: {
         label: function(tooltipItem, chart) {
           var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-          return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+          return number_format(tooltipItem.yLabel);
         }
       }
     },
