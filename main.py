@@ -1,5 +1,4 @@
-from http.client import HTTPException
-from fastapi import FastAPI,Request,status, Form, Header,Response
+from fastapi import FastAPI,Request, Form
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse
 from fastapi.responses import RedirectResponse
@@ -8,11 +7,8 @@ from fastapi.templating import Jinja2Templates
 from crud.crud import *
 from db.session import *
 import json
-import datetime
 import collections
-from fastapi import Depends
-from typing import Generator
-
+from typing import Optional
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -27,11 +23,15 @@ app.add_middleware(
 
 
 def get_db():
-    try:
         db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+        try:
+                yield db
+        except:
+                db.rollback()
+                raise
+        finally:
+                db.close()
+
 
 
 db_session = next(get_db())
@@ -94,16 +94,18 @@ async def home(request:Request):
 @app.get("/{part}")
 async def part(request:Request,part:str):
 	category = get_category()
-	label,work = await label_work(part,"total")
+	label,work = await label_work(part=part,name = "total")
 	error = get_error_all(db=db_session,part=part)
 	page_file = f"total_charts.html"
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'label':label,'work':work,'error':error,'part':part})
 
-async def label_work(part,name):
-	if name == "total":
-		logs = get_log_all(db=db_session,part=part)
+async def label_work(**kwargs):
+	if kwargs['name'] == "total":
+		logs = get_log_all(db=db_session,part=kwargs['part'])
+	elif kwargs['start_date'] and kwargs['end_date']:
+		logs = get_date_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'],start_date=kwargs['start_date'],end_date=kwargs['end_date'])
 	else:
-		logs = get_search_log(db=db_session,part=part,name=name)
+		logs = get_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'])
 	counter = collections.Counter()
 	for log in logs:
 		counter.update(json.loads(log.info))
@@ -122,15 +124,17 @@ async def label_work(part,name):
 
 
 @app.post("/{part}/search")
-async def search(request:Request,part:str,search_name: str = Form(...)):
+async def search(request:Request,part:str,search_name: str = Form(...),start_date:Optional[date]=Form(None),end_date:Optional[date]=Form(None)):
+	print(search_name,type(start_date),end_date)
 	category = get_category()
-	if get_name(db=db_session,name=search_name):
-		data={}
-		data['part']=part
-		data['name']=search_name
-		label,work = await label_work(part=part,name=search_name)
-		error = get_search_error(db=db_session,part=part,name=search_name)
-		return templates.TemplateResponse('search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
+	if start_date and end_date:
+		if get_name(db=db_session,name=search_name):
+			data={}
+			data['part']=part
+			data['name']=search_name
+			label,work = await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
+			error = get_date_search_error(db=db_session,part=part,name=search_name,start_date=start_date,end_date=end_date)
+			return templates.TemplateResponse('search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
 	else:
 		return RedirectResponse(url=f"/{part}", status_code=302)
 
