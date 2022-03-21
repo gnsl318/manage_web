@@ -102,7 +102,7 @@ async def part(request:Request,part:str):
 async def label_work(**kwargs):
 	if kwargs['name'] == "total":
 		logs = get_log_all(db=db_session,part=kwargs['part'])
-	elif kwargs['start_date'] and kwargs['end_date']:
+	elif kwargs['start_date'] != None and kwargs['end_date'] != None:
 		logs = get_date_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'],start_date=kwargs['start_date'],end_date=kwargs['end_date'])
 	else:
 		logs = get_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'])
@@ -125,16 +125,18 @@ async def label_work(**kwargs):
 
 @app.post("/{part}/search")
 async def search(request:Request,part:str,search_name: str = Form(...),start_date:Optional[date]=Form(None),end_date:Optional[date]=Form(None)):
-	print(search_name,type(start_date),end_date)
 	category = get_category()
-	if start_date and end_date:
-		if get_name(db=db_session,name=search_name):
-			data={}
-			data['part']=part
-			data['name']=search_name
+	if get_name(db=db_session,name=search_name):
+		data={}
+		data['part']=part
+		data['name']=search_name
+		if start_date != None and end_date != None:
 			label,work = await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
 			error = get_date_search_error(db=db_session,part=part,name=search_name,start_date=start_date,end_date=end_date)
-			return templates.TemplateResponse('search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
+		else:
+			label,work= await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
+			error = get_search_error(db=db_session,part=part,name=search_name)
+		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
 	else:
 		return RedirectResponse(url=f"/{part}", status_code=302)
 
