@@ -32,7 +32,12 @@ def get_parts(
     part_info=db.query(Part).all()
     return part_info
 
-
+def get_error_list(
+    *,
+    db:Session,
+):
+    error_info=db.query(Error_list).all()
+    return error_info
 def get_log(
     *,
     db:Session,
@@ -149,3 +154,4 @@ def get_date_search_error(
         else:
             error_dic[error_name] = 1
     return json.dumps(error_dic)
+

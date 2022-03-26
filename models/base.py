@@ -22,8 +22,8 @@ class User(Base):
 class Part(Base):
   __tablename__='part'
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-  l_class  = Column(Integer,ForeignKey("large_class.id"))
-  m_class  = Column(Integer,ForeignKey("midium_class.id"))
+  l_class  = Column(String(20))
+  m_class  = Column(String(20))
   s_class = Column(String(20),unique=True)
   max_count = Column(Integer)
   start_day = Column(Date)

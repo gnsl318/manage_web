@@ -9,6 +9,7 @@ from db.session import *
 import json
 import collections
 from typing import Optional
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
