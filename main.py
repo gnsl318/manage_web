@@ -1,18 +1,19 @@
-from email import header
-from urllib import request
 from fastapi import FastAPI,Request, Form
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import FileResponse
-from fastapi.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import FileResponse,RedirectResponse,Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
+import os
 from crud.crud import *
 from db.session import *
 import json
 import collections
 from typing import Optional
 import smtplib
-from OpenSSL import SSL
+import jwt
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -24,6 +25,7 @@ app.add_middleware(
 	allow_methods=["*"],
 	allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key="example")
 
 
 def get_db():
@@ -39,8 +41,7 @@ def get_db():
 
 
 db_session = next(get_db())
-global user_session
-user_session = None
+
 templates = Jinja2Templates(directory="templates")
 app.mount("/static",StaticFiles(directory="static"),name="static")
 
@@ -92,7 +93,7 @@ async def home(request:Request):
 			if json.loads(log.info) != "raw_file":
 				work_count +=1
 		data[part.s_class]= int((work_count/part.max_count)*100)
-	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'user':user_session})
+	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category})
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
@@ -148,24 +149,26 @@ async def login_page(request:Request):
 	page_file = f"login.html"
 	return templates.TemplateResponse(page_file,{'request':request})
 
+def create_access_token(*, data):
+    encoded_jwt =  jwt.encode(data,"sr0302!!",algorithm="HS256")
+    return encoded_jwt
+
 @app.post("/main/login_check")
-async def login_check(request:Request,InputEmail: str = Form(...),InputPassword: str = Form(...)):
+async def login_check(request:Request,response:Response,InputEmail: str = Form(...),InputPassword: str = Form(...)):
 	smtp = smtplib.SMTP('smtp.cafe24.com',587)   # 587: 서버의 포트번호
 	smtp.ehlo()
-	smtp.starttls()   # tls방식으로 접속, 그 포트번호가 587
-	smtp.ehlo()
+	#smtp.starttls()   # tls방식으로 접속, 그 포트번호가 587
 	try:
 		smtp.login(InputEmail, InputPassword)
 		print("login 성공")
-		global user_session
 		user_session = get_session_name(db=db_session,email=InputEmail)
-		return RedirectResponse(url=f"/", status_code=302)
+		request.session["name"]=user_session
+		return RedirectResponse(url="/", status_code=302)
 	except:
 		print("login 실패")
 		return RedirectResponse(url=f"/main/login", status_code=302)
 @app.get("/main/logout")
 async def logout(request:Request):
-	global user_session
-	user_session = None
+	request.session["name"]=None
 	return RedirectResponse(url="/", status_code=302)
 
