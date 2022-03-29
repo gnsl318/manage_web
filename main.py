@@ -1,3 +1,5 @@
+from email import header
+from urllib import request
 from fastapi import FastAPI,Request, Form
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse
@@ -9,6 +11,7 @@ from db.session import *
 import json
 import collections
 from typing import Optional
+import smtplib
 
 Base.metadata.create_all(bind=engine)
 
@@ -36,7 +39,8 @@ def get_db():
 
 
 db_session = next(get_db())
-
+global user_session
+user_session = None
 templates = Jinja2Templates(directory="templates")
 app.mount("/static",StaticFiles(directory="static"),name="static")
 
@@ -75,8 +79,6 @@ def get_category():
 	return category
 
 
-
-
 @app.get("/")
 async def home(request:Request):
 	category = get_category()
@@ -90,7 +92,7 @@ async def home(request:Request):
 			if json.loads(log.info) != "raw_file":
 				work_count +=1
 		data[part.s_class]= int((work_count/part.max_count)*100)
-	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category})
+	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'user':user_session})
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
@@ -141,6 +143,29 @@ async def search(request:Request,part:str,search_name: str = Form(...),start_dat
 	else:
 		return RedirectResponse(url=f"/{part}", status_code=302)
 
-@app.get("/{part}/search/{name}")
-async def search_name(part:str,name:str):
-	info = get_part_name(db=db_session,part=part,name=name)
+@app.get("/main/login")
+async def login_page(request:Request):
+	page_file = f"login.html"
+	return templates.TemplateResponse(page_file,{'request':request})
+
+@app.post("/main/login_check")
+async def login_check(request:Request,InputEmail: str = Form(...),InputPassword: str = Form(...)):
+	smtp = smtplib.SMTP('smtp.cafe24.com',587)   # 587: 서버의 포트번호
+	smtp.ehlo()
+	smtp.starttls()   # tls방식으로 접속, 그 포트번호가 587
+	smtp.ehlo()
+	try:
+		smtp.login(InputEmail, InputPassword)
+		print("login 성공")
+		global user_session
+		user_session = get_name(db=db_session,email=InputEmail)
+		return RedirectResponse(url=f"/", status_code=302)
+	except:
+		print("login 실패")
+		return RedirectResponse(url=f"/main/login", status_code=302)
+@app.get("/main/logout")
+async def logout(request:Request):
+	global user_session
+	user_session = None
+	return RedirectResponse(url="/", status_code=302)
+
