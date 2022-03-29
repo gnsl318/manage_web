@@ -155,7 +155,7 @@ def get_date_search_error(
             error_dic[error_name] = 1
     return json.dumps(error_dic)
 
-def get_name(
+def get_session_name(
     *,
     db:Session,
     email:str

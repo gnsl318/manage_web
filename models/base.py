@@ -16,6 +16,7 @@ class User(Base):
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
   employee_number = Column(String(20),unique=True)
   name = Column(String(20))
+  field = Column(String(20))
   email = Column(String(30),unique=True)
   state = Column(Boolean)
 

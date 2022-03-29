@@ -158,7 +158,7 @@ async def login_check(request:Request,InputEmail: str = Form(...),InputPassword:
 		smtp.login(InputEmail, InputPassword)
 		print("login 성공")
 		global user_session
-		user_session = get_name(db=db_session,email=InputEmail)
+		user_session = get_session_name(db=db_session,email=InputEmail)
 		return RedirectResponse(url=f"/", status_code=302)
 	except:
 		print("login 실패")
