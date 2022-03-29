@@ -16,6 +16,7 @@ psycopg2==2.9.3
 pycparser==2.21
 pydantic==1.9.0
 PyMySQL==1.0.2
+pyOpenSSL==22.0.0
 python-dotenv==0.19.2
 python-multipart==0.0.5
 PyYAML==6.0

@@ -12,7 +12,7 @@ import json
 import collections
 from typing import Optional
 import smtplib
-
+from OpenSSL import SSL
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
