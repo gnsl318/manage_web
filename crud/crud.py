@@ -22,8 +22,42 @@ def create_part(
         db.add(new_part)
         db.commit()
         return new_part
+def create_user(
+    *,
+    db : Session,
+    Employee_number:str,
+    Name:str,
+    email:str,
+    field:str
+):
+    
+    if db.query(User).filter((User.employee_number == Employee_number)|(User.email==email)).first()==None:
+        new_user = User(
+            employee_number = Employee_number,
+            name = Name,
+            email = email,
+            state = True,
+            field = field
+        )
+        #db.add(new_user)
+        #db.commit()
+        print(new_user)
+        return new_user
 
+def get_all_user(
+    *,
+    db:Session,
+):
+    user_info = db.query(User).all()
+    return user_info
 
+def get_search_user(
+    *,
+    db:Session,
+    name:str
+):
+    user_info =db.query(User).filter(User.name==name).first()
+    return user_info
 
 def get_parts(
     *,
@@ -155,10 +189,31 @@ def get_date_search_error(
             error_dic[error_name] = 1
     return json.dumps(error_dic)
 
-def get_session_name(
+def get_session(
     *,
     db:Session,
     email:str
 ): 
-    user_name = db.query(User).filter(User.email==email).first().name
-    return user_name
+    user = db.query(User).filter(User.email==email).first()
+    return user
+
+def update_user_info(
+    *,
+    db:Session,
+    employee_number:str,
+    name:str,
+    email:str,
+    state:str,
+    field:str
+):
+    if state==None:
+        state = False
+    if field==None:
+        field = "미정"
+    user = db.query(User).filter(User.employee_number == employee_number).first()
+    user.name=name
+    user.email=email
+    user.state=state
+    user.field=field
+    #db.commit()
+    return user

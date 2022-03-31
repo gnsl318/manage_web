@@ -4,7 +4,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import FileResponse,RedirectResponse,Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from dotenv import load_dotenv
 import os
 from crud.crud import *
 from db.session import *
@@ -12,7 +11,6 @@ import json
 import collections
 from typing import Optional
 import smtplib
-import jwt
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,7 +45,6 @@ app.mount("/static",StaticFiles(directory="static"),name="static")
 
 @app.get("/favicon.ico")
 async def favicon():
-	print(os.path.join(os.getcwd(),"static/img/logo.ico"))
 	return FileResponse(os.path.join(os.getcwd(),"static/img/logo.ico"))
 
 def get_category():
@@ -78,7 +75,11 @@ def get_category():
 			l_class=part.l_class
 			category[l_class]=m_dic
 	return category
-
+def get_user_name(user_info):
+	user_name=[]
+	for user in user_info:
+		user_name.append(user.name)
+	return user_name
 
 @app.get("/")
 async def home(request:Request):
@@ -149,10 +150,6 @@ async def login_page(request:Request):
 	page_file = f"login.html"
 	return templates.TemplateResponse(page_file,{'request':request})
 
-def create_access_token(*, data):
-    encoded_jwt =  jwt.encode(data,"sr0302!!",algorithm="HS256")
-    return encoded_jwt
-
 @app.post("/main/login_check")
 async def login_check(request:Request,response:Response,InputEmail: str = Form(...),InputPassword: str = Form(...)):
 	smtp = smtplib.SMTP('smtp.cafe24.com',587)   # 587: 서버의 포트번호
@@ -160,15 +157,45 @@ async def login_check(request:Request,response:Response,InputEmail: str = Form(.
 	#smtp.starttls()   # tls방식으로 접속, 그 포트번호가 587
 	try:
 		smtp.login(InputEmail, InputPassword)
-		print("login 성공")
-		user_session = get_session_name(db=db_session,email=InputEmail)
-		request.session["name"]=user_session
+		user_session = get_session(db=db_session,email=InputEmail)
+		request.session["name"]=user_session.name
+		request.session["field"]=user_session.field
 		return RedirectResponse(url="/", status_code=302)
 	except:
-		print("login 실패")
 		return RedirectResponse(url=f"/main/login", status_code=302)
 @app.get("/main/logout")
 async def logout(request:Request):
 	request.session["name"]=None
 	return RedirectResponse(url="/", status_code=302)
 
+@app.post("/main/add_user")
+async def add_user(request:Request,Employee_number: str = Form(...),Name: str = Form(...),email: str = Form(...),field: str = Form(...)):
+	create_user(db=db_session,Employee_number=Employee_number,Name=Name,email=email,field=field)
+	return RedirectResponse(url="/", status_code=302)
+
+@app.get("/main/change_info")
+async def change_info(request:Request):
+	page_file = f"change_user.html"
+	user_info=get_all_user(db=db_session)
+	user_name = get_user_name(user_info)
+	return templates.TemplateResponse(page_file,{'request':request,'user_name':user_name})
+
+@app.post("/main/change_info_search")
+async def change_info_search(request:Request,name: str = Form(None)):
+	page_file = f"change_user.html"
+	user_info=get_all_user(db=db_session)
+	user_name = get_user_name(user_info)
+	user = get_search_user(db=db_session,name=name)
+	if user:
+		return templates.TemplateResponse(page_file,{'request':request,'user_name':user_name,'employee_number':user.employee_number,'name':user.name,'email':user.email,'state':user.state,'field':user.field})
+	else:
+		return RedirectResponse(url="/main/change_info")
+
+	
+@app.post("/main/change")
+async def change(request:Request,employee_number: str = Form(...),name: str = Form(...),email: str = Form(...),state: str = Form(None),field: str = Form(None)):
+	try:
+		update_user_info(db=db_session,employee_number=employee_number,name=name,email=email,state=state,field=field)
+		return RedirectResponse(url="/", status_code=302)
+	except:
+		return RedirectResponse(url="/main/change_info")
