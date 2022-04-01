@@ -176,6 +176,7 @@ async def login_check(request:Request,response:Response,InputEmail: str = Form(.
 @app.get("/main/logout")
 async def logout(request:Request):
 	request.session["name"]=None
+	request.session['field']=None
 	return RedirectResponse(url="/", status_code=302)
 
 @app.post("/main/add_user")
