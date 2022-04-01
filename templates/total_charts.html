@@ -1,156 +1,159 @@
+
 <!DOCTYPE html>
-    <html lang="en">
-    
-    <head>
-    
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="">
-    
-        <title>Seoreu manager - Dashboard</title>
-    
-        <!-- Custom fonts for this template-->
-        <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-        <link
-            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-            rel="stylesheet">
-        <script src="../static/vendor/jquery/jquery.min.js"></script>
-        <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    
+<html lang="en">
 
-        <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
-    
+<head>
 
-        <script src="../static/js/sb-admin-2.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        <script src="../static/vendor/chart.js/Chart.min.js"></script>
-        <!-- Custom styles for this template-->
-        <link href="../static/css/sb-admin-2.min.css" rel="stylesheet">
-        
-    </head>
-    
-    <body id="page-top">
-    
-        <!-- Page Wrapper -->
-        <div id="wrapper">
-    
-            <!-- Sidebar -->
-            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-    
-                <!-- Sidebar - Brand -->
-                <a class="sidebar-brand d-flex align-items-center justify-content-center" href=".">
-                    <img class="class=img-profile"
-                        src="../static/img/logo.svg" width="50" height="55">
-                    <div class="sidebar-brand-text mx-3">Seoreu</div>
+    <title>Seoreu manager</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="../static/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href=".">
+                <img class="class=img-profile"
+                    src="../static/img/logo.svg" width="50" height="55">
+                <div class="sidebar-brand-text mx-3">Seoreu</div>
+            </a>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+            <!-- Heading -->
+            {% for l_class,m_dic in category.items() %}
+            <div class="sidebar-heading">
+                {{ l_class }}
+            </div>
+            {% for m_class,s_class_list in m_dic.items() %}
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{m_class}}"
+                    aria-expanded="true" aria-controls="collapse{{m_class}}">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>{{ m_class }}</span>
                 </a>
-                <!-- Divider -->
-                <hr class="sidebar-divider my-0">
-                <!-- Heading -->
-                {% for l_class,m_dic in category.items() %}
-                <div class="sidebar-heading">
-                    {{ l_class }}
-                </div>
-                {% for m_class,s_class_list in m_dic.items() %}
-                <!-- Nav Item - Dashboard -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{m_class}}"
-                        aria-expanded="true" aria-controls="collapse{{m_class}}">
-                        <i class="fas fa-fw fa-cog"></i>
-                        <span>{{ m_class }}</span>
-                    </a>
-                    <div id="collapse{{m_class}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Sub</h6>
-                            {% for s_class in s_class_list %}
-                            <a class="collapse-item" href="./{{s_class}}">{{ s_class }}</a>
-                            {% endfor %}
-                            <!-- <a class="collapse-item" href="cards.html">Catheter</a> -->
-                        </div>
+                <div id="collapse{{m_class}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Sub</h6>
+                        {% for s_class in s_class_list %}
+                        <a class="collapse-item" href="./{{s_class}}">{{ s_class }}</a>
+                        {% endfor %}
+                        <!-- <a class="collapse-item" href="cards.html">Catheter</a> -->
                     </div>
-                </li>
-                {% endfor %}
-                {% endfor %}
-            </ul>
-            <!-- End of Sidebar -->
-    
-            <!-- Content Wrapper -->
-            <div id="content-wrapper" class="d-flex flex-column">
-    
-                <!-- Main Content -->
-                <div id="content">
-    
-                    <!-- Topbar -->
-                    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-    
-                        <!-- Sidebar Toggle (Topbar) -->
-                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                            <i class="fa fa-bars"></i>
-                        </button>
-    
-                        <!-- Topbar Search -->
-                        <form action ="{{ part }}/search" method="post"
-                            class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                            <div class="input-group">
-                                <input name="search_name" type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                    aria-label="Search" aria-describedby="basic-addon2">
-                                <input name="start_date" type="date"  min="2022-01-01" 
-                                    class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                                <input name="end_date" type="date"  min="2022-01-01" 
-                                    class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search fa-sm"></i>
-                                    </button>
-                                </div>
+                </div>
+            </li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form action ="{{ part }}/search" method="post"
+                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input name="search_name" type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                                aria-label="Search" aria-describedby="basic-addon2">
+                            <input name="start_date" type="date"  min="2022-01-01" 
+                                class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input name="end_date" type="date"  min="2022-01-01" 
+                                class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
                             </div>
-                        </form>
-    
-                        <!-- Topbar Navbar -->
-                        <ul class="navbar-nav ml-auto">
-    
-                            <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                            <li class="nav-item dropdown no-arrow d-sm-none">
-                                <a class="nav-link dropdown-toggle" href="" id="searchDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-search fa-fw"></i>
-                                </a>
-                                <!-- Dropdown - Messages -->
-                                <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                    aria-labelledby="searchDropdown">
-                                    <form  methodclass="form-inline mr-auto w-100 navbar-search">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control bg-light border-0 small"
-                                                placeholder="Search for..." aria-label="Search"
-                                                aria-describedby="basic-addon2">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary" type="button">
-                                                    <i class="fas fa-search fa-sm"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
-    
-                            <div class="topbar-divider d-none d-sm-block"></div>
-    
-                        </ul>
-    
-                    </nav>
-                    <!-- End of Topbar -->
+                        </div>
+                    </form>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    </ul>
+                    {% if request.session.field == "Annotation" or request.session.field == "개발" %}
+                    <a class="nav-link collapse-item" href="/main/change_part" id="Chanage_part" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">프로젝트 정보 수정</span>
+                    </a>
+                    {% endif %}
+                    {% if request.session.field == "운영" or request.session.field == "개발" %}
+                    <a class="nav-link collapse-item" href="/main/change_info" id="Chanage_info" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">인원정보 수정</span>
+                    </a>
+                    {% endif %}
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    {% if request.session.name %}
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                            <span class=" d-none d-lg-inline text-gray-600">{{ request.session.name }}</span>
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            {% if request.session.field == "운영" or request.session.field == "개발" %}
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#adduserModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Add-User
+                            </a>
+                            {% endif %}
+                            {% if request.session.field == "Annotation" or request.session.field == "개발" %}
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addprojectModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Add-Project
+                            </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+                    {% else %}
+                    <a class="collapse-item" href="./main/login" id="userDropdown" role="button">
+                        <i class="mr-2 d-none d-lg-inline text-gray-600 small"> Log in</i>
+                    </a>
+                    {% endif %}
+
+                </nav>
+                <!-- End of Topbar -->   
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Charts</h1>
-                    <p class="mb-4">Chart.js is a third party plugin that is used to generate the charts in this theme.
-                        The charts below have been customized - for further customization options, please visit the <a
-                            target="_blank" href="https://www.chartjs.org/docs/latest/">official Chart.js
-                            documentation</a>.</p>
-
+                    <h1 class="h3 mb-2 text-gray-800">{{ part }}</h1>
                     <!-- Content Row -->
                     <!-- <div class="row"> -->
 
@@ -217,7 +220,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
+                        <span>Copyright Seoreu &copy; Your Website 2022</span>
                     </div>
                 </div>
             </footer>
@@ -248,12 +251,126 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
+                    <a class="btn btn-primary" href="/main/logout">Logout</a>
                 </div>
             </div>
         </div>
     </div>
-
+    <!-- Add user Modal-->
+    <div class="modal fade" id="adduserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Welcom Seoreu</div>
+                <form class="user" action = "/main/add_user" method = "post">
+                    <div class="form-group">
+                        Employee_number :
+                        <input type="text" class="form-control form-control-user"
+                            id="Employee_number" name="Employee_number" aria-describedby="emailHelp"
+                            placeholder="Employee_number">
+                    </div>
+                    <div class="form-group">
+                        Name :
+                        <input type="text" class="form-control form-control-user"
+                            id="Name" name="Name" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        E-mail :
+                        <input type="email" class="form-control form-control-user"
+                            id="email" name="email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        Field :
+                        <select name="field">
+                            <option value="운영">운영</option>
+                            <option value="개발">개발</option>
+                            <option value="Annotation">Annotation</option>
+                            <option value="미정">미정</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <input class="btn btn-primary" type="submit" value=Add href="#"></a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Add project Modal-->
+    <div class="modal fade" id="addprojectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Project</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body"></div>
+                <form class="user" action = "/main/add_project" method = "post">
+                    <div class="form-group">
+                        대분류
+                        <style>
+                            select {
+                                width: 100%;
+                                height: calc(1.5em + 0.75rem + 2px);
+                                padding: 0.375rem 0.75rem;
+                                font-size: 1rem;
+                                font-weight: 400;
+                                line-height: 1.5;
+                                color: #6e707e;
+                                background-color: #fff;
+                                background-clip: padding-box;
+                                border: 1px solid #d1d3e2;
+                                border-radius: 0.35rem;
+                                transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                            }
+                        </style>
+                        <select name="l_class">
+                            <option value="None" selected>==Select==</option>
+                            <option value="Medical">의료</option>
+                            <option value="Design">디자인</option>
+                            <option value="Recycle">재활용</option>
+                            <option value="미정">미정</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        Part
+                        <input type="text" class="form-control form-control-user"
+                            id="m_class" name="m_class" placeholder="Part">
+                    </div>
+                    <div class="form-group">
+                        Task
+                        <input type="text" class="form-control form-control-user"
+                            id="s_class" name="s_class" placeholder="Task">
+                    </div>
+                    <div class="form-group">
+                        Start_date
+                        <input type="date" class="form-control form-control-user"
+                            id="start_date" name="start_date" placeholder="Start_date">
+                    </div>
+                    <div class="form-group">
+                        End_date
+                        <input type="date" class="form-control form-control-user"
+                            id="end_date" name="end_date" placeholder="End_date">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <input class="btn btn-primary" type="submit" value=Add href="#"></a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
     <!-- Bootstrap core JavaScript-->
     <script src="../static/vendor/jquery/jquery.min.js"></script>
     <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -275,3 +392,4 @@
 </body>
 
 </html>
+

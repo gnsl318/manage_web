@@ -10,18 +10,29 @@ import json
 def create_part(
     *,
     db : Session,
-    part_name:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+    max_count:int,
+    start_date:date,
+    end_date:date,
     ):
     
-    if db.query(Part).filter(Part.part_name == part_name).first()==None:
+    if db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()==None:
         new_part = Part(
-            part_name = part_name,
-            start_day = null,
-            end_day = null,
+            l_class=l_class,
+            m_class=m_class,
+            s_class=s_class,
+            max_count = max_count,
+            start_date=start_date,
+            end_date=end_date,
+            state = True
         )
         db.add(new_part)
         db.commit()
         return new_part
+    else:
+        return False
 def create_user(
     *,
     db : Session,
@@ -43,6 +54,8 @@ def create_user(
         #db.commit()
         print(new_user)
         return new_user
+    else:
+        return False
 
 def get_all_user(
     *,
@@ -50,6 +63,12 @@ def get_all_user(
 ):
     user_info = db.query(User).all()
     return user_info
+def get_all_part(
+    *,
+    db:Session,
+):
+    part_info = db.query(Part).all()
+    return part_info
 
 def get_search_user(
     *,
@@ -59,11 +78,21 @@ def get_search_user(
     user_info =db.query(User).filter(User.name==name).first()
     return user_info
 
+def get_search_part(
+    *,
+    db:Session,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+):
+    part_info =db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
+    return part_info
+
 def get_parts(
     *,
     db:Session,
 ):
-    part_info=db.query(Part).all()
+    part_info=db.query(Part).filter(Part.state == True).all()
     return part_info
 
 def get_error_list(
@@ -115,7 +144,7 @@ def get_search_log(
 ):
     part_id = db.query(Part).filter(Part.s_class == part).first().id
     name_id = db.query(User).filter(User.name == name).first().id
-    log_info=db.query(Test_log).filter(and_(Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id),(Test_log.user_id==name_id)).all()
+    log_info=db.query(Test_log).filter(and_((Test_log.info != json.dumps("raw_file")),(Test_log.part_id==part_id),(Test_log.user_id==name_id))).all()
     return log_info 
 def get_search_error(
     *,
@@ -215,5 +244,29 @@ def update_user_info(
     user.email=email
     user.state=state
     user.field=field
-    #db.commit()
+    db.commit()
     return user
+
+def update_part_info(
+    *,
+    db : Session,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+    max_count:int,
+    start_date:date,
+    end_date:date,
+    state:str
+):
+    part = db.query(User).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
+    part.l_class =l_class
+    part.m_class = m_class
+    part.s_class= s_class
+    part.max_count = max_count,
+    part.start_date = start_date,
+    part.end_date = end_date,
+    if state==None:
+        state=True
+    part.state = state
+    db.commit()
+    return part

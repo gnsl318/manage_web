@@ -29,6 +29,7 @@ class Part(Base):
   max_count = Column(Integer)
   start_day = Column(Date)
   end_day = Column(Date)
+  state = Column(Boolean)
 
 
 class Raw(Base):
