@@ -24,8 +24,8 @@ def create_part(
             m_class=m_class,
             s_class=s_class,
             max_count = max_count,
-            start_date=start_date,
-            end_date=end_date,
+            start_day=start_date,
+            end_day=end_date,
             state = True
         )
         db.add(new_part)

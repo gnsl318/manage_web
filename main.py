@@ -226,7 +226,8 @@ async def change(request:Request,employee_number: str = Form(...),name: str = Fo
 
 @app.post("/main/add_project")
 async def add_project(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...)):
-	#print(l_class,m_class,s_class,max_count,start_date,end_date)
+	print(l_class,m_class,s_class,max_count,start_date,end_date)
+	print(type(start_date),type(end_date))
 	create_part(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date)
 	return RedirectResponse(url="/", status_code=302)
 
