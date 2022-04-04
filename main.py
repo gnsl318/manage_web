@@ -50,30 +50,28 @@ async def favicon():
 def get_category():
 	part_info = get_parts(db=db_session)
 	category={}
-	l_class=""
-	m_dic={}
-	m_class=""
+	l_class = ""
+	m_class = ""
 	for part in part_info:
-		if l_class == part.l_class:
-			if m_class == part.m_class:
-				s_class_list.append(part.s_class)
+		if l_class != part.l_class:
+			l_class = part.l_class
+			m_dic={}	
+			if m_class != part.m_class:
+				m_class = part.m_class
+				s_class_list = [part.s_class]
 				m_dic[m_class]=s_class_list
 			else:
-				s_class_list=[part.s_class]
-				m_class=part.m_class
-			m_dic[m_class]= s_class_list
-			category[l_class]=m_dic
+				s_class_list.append(part.s_class)
+				m_dic[m_class]=s_class_list
 		else:
-			
-			if m_class == part.m_class:
-				s_class_list.append(part.s_class)
+			if m_class != part.m_class:
+				m_class = part.m_class
+				s_class_list = [part.s_class]
 				m_dic[m_class]=s_class_list
 			else:
-				s_class_list=[part.s_class]
-				m_class=part.m_class
-			m_dic[m_class]= s_class_list
-			l_class=part.l_class
-			category[l_class]=m_dic
+				s_class_list.append(part.s_class)
+				m_dic[m_class]=s_class_list
+		category[l_class]=m_dic
 	return category
 def get_user_name(user_info):
 	user_name=[]
