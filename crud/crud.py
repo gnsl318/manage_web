@@ -50,9 +50,8 @@ def create_user(
             state = True,
             field = field
         )
-        #db.add(new_user)
-        #db.commit()
-        print(new_user)
+        db.add(new_user)
+        db.commit()
         return new_user
     else:
         return False
@@ -63,6 +62,7 @@ def get_all_user(
 ):
     user_info = db.query(User).all()
     return user_info
+
 def get_all_part(
     *,
     db:Session,
@@ -236,10 +236,6 @@ def update_user_info(
     state:str,
     field:str
 ):
-    if state==None:
-        state = False
-    if field==None:
-        field = "미정"
     user = db.query(User).filter(User.employee_number == employee_number).first()
     user.name=name
     user.email=email
@@ -259,13 +255,13 @@ def update_part_info(
     end_date:date,
     state:str
 ):
-    part = db.query(User).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
+    part = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
     part.l_class =l_class
     part.m_class = m_class
     part.s_class= s_class
     part.max_count = max_count,
-    part.start_date = start_date,
-    part.end_date = end_date,
+    part.start_day = start_date,
+    part.end_day = end_date,
     if state==None:
         state=True
     part.state = state

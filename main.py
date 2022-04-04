@@ -217,17 +217,15 @@ async def change_info_search(request:Request,name: str = Form(None)):
 
 	
 @app.post("/main/change_info_do")
-async def change(request:Request,employee_number: str = Form(...),name: str = Form(...),email: str = Form(...),state: str = Form(None),field: str = Form(None)):
+async def change_user(request:Request,employee_number: str = Form(...),name: str = Form(...),email: str = Form(...),state: bool = Form(None),field: str = Form(None)):
 	try:
 		update_user_info(db=db_session,employee_number=employee_number,name=name,email=email,state=state,field=field)
 		return RedirectResponse(url="/", status_code=302)
 	except:
-		return RedirectResponse(url="/main/change_info")
+		return RedirectResponse(url="/main/change_info", status_code=302)
 
 @app.post("/main/add_project")
 async def add_project(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...)):
-	print(l_class,m_class,s_class,max_count,start_date,end_date)
-	print(type(start_date),type(end_date))
 	create_part(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date)
 	return RedirectResponse(url="/", status_code=302)
 
@@ -240,19 +238,24 @@ async def change_info(request:Request):
 
 @app.post("/main/change_part_search")
 async def change_info_search(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...)):
+
 	page_file = f"change_project.html"
 	part_info=get_all_part(db=db_session)
 	part_l_class,part_m_class,part_s_class = get_part_name(part_info)
 	part = get_search_part(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
-	if part:
-		return templates.TemplateResponse(page_file,{'request':request,'part_l_class':part_l_class,'part_m_class':part_m_class,'part_s_class':part_s_class,'l_class':part.l_class,'m_class':part.m_class,'s_class':part.s_class,'max_count':part.max_count,'start_date':part.start_day,'end_date':part.end_day,'state':part.state})
-	else:
-		return RedirectResponse(url="/main/change_part")
+
+	try:
+		if part:
+			return templates.TemplateResponse(page_file,{'request':request,'part_l_class':part_l_class,'part_m_class':part_m_class,'part_s_class':part_s_class,'l_class':part.l_class,'m_class':part.m_class,'s_class':part.s_class,'max_count':part.max_count,'start_date':part.start_day,'end_date':part.end_day,'state':part.state})
+		else:
+			return RedirectResponse(url="/main/change_part", status_code=302)
+	except:
+		return RedirectResponse(url="/main/change_part", status_code=302)
 
 	
 @app.post("/main/change_part_do")
-async def change(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:str = Form(None)):
-	#print(l_class,m_class,s_class,max_count,start_date,end_date,state)
+async def change_part(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:bool = Form(None)):
+
 	try:
 		update_part_info(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state)
 		return RedirectResponse(url="/", status_code=302)

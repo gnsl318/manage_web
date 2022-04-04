@@ -90,7 +90,7 @@
                                             <input type="submit" value="조회"/>
                                         </div>
                                     </form>
-                                    {% if state %}
+                                    {% if state ==True or state == False %}
                                     <form class="user" action = "/main/change_part_do" method = "post">
                                         <div class="form-group">
                                             대분류 : {{ l_class }}
@@ -109,22 +109,22 @@
                                         </div>
                                         <div class="form-group">
                                             목표 수량 : {{ max_count }}
-                                             <input type="int" class="form-control form-control-user"
+                                             <input type="number" class="form-control form-control-user"
                                                 id="max_count" name="max_count" value={{max_count}} placeholder="목표수량">
                                         </div>
                                         <div class="form-group">
                                             시작 날짜 : {{ start_date }}
                                             <input type="date" class="form-control form-control-user"
-                                                id="start_date" name="start_date" placeholder="Start_date">
+                                                id="start_date" name="start_date" value="{{ start_date }}" placeholder="Start_date">
                                         </div>
                                         <div class="form-group">
                                             종료 날짜 : {{ end_date }}
                                             <input type="date" class="form-control form-control-user"
-                                                id="end_date" name="end_date" placeholder="End_date">
+                                                id="end_date" name="end_date" value="{{ end_date }}" placeholder="End_date">
                                         </div>
                                         <div class="form-group">
                                             State : {{ state }}
-                                            <select id="state">
+                                            <select name="state">
                                                 <option value="None" selected>==Select==</option>
                                                 <option value="True">진행</option>
                                                 <option value="False">종료</option>

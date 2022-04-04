@@ -75,7 +75,7 @@
                                     </form>
                                    
                                     {% if employee_number %}
-                                    <form class="user" action = "/main/change_info_do" method = "post">
+                                    <form class="change_info_do" action = "/main/change_info_do" method = "post">
                                         <div class="form-group">
                                             Employee_number : {{employee_number}}
                                             <input type="text" class="form-control form-control-user"
@@ -93,16 +93,16 @@
                                         </div>
                                         <div class="form-group">
                                             State : {{ state }}
-                                            <select id="state">
+                                            <select name="state">
                                                 <option value="None" selected>==Select==</option>
-                                                <option value="True">재직</option>
-                                                <option value="False">퇴사</option>
+                                                <option value=True>재직</option>
+                                                <option value=False>퇴사</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             Field : {{ field }}
                                             <div></div>
-                                            <select id="field">
+                                            <select name="field">
                                                 <option value="None" selected>==Select==</option>
                                                 <option value="운영">운영</option>
                                                 <option value="개발">개발</option>
