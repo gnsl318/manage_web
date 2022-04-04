@@ -91,20 +91,32 @@ def get_part_name(part_info):
 		part_s_class.append(part.s_class)
 	return list(set(part_l_class)),list(set(part_m_class)),sorted(list(set(part_s_class)))
 
+
 @app.get("/")
 async def home(request:Request):
 	category = get_category()
 	part_info=get_parts(db=db_session)
 	data = {}
+	mean = {}
 	for part in part_info:
 		part_id = part.id
 		log_info = get_log(db=db_session,part_id=part_id)
-		work_count =0
+		work_day = ""
+		day_work={}
+		total_count = 0
 		for log in log_info:
+			if work_day != log.work_day:
+				work_count =0
 			if json.loads(log.info) != "raw_file":
 				work_count +=1
-		data[part.s_class]= int((work_count/part.max_count)*100)
-	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category})
+				total_count +=1
+				day_work[log.work_day] = work_count
+		if len(day_work) != 0:
+			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values)/len(day_work.kesy())))
+		else:
+			mean[f"{part.m_class}-{part.s_class}"]=str(0)
+		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
+	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
@@ -112,7 +124,8 @@ async def part(request:Request,part:str):
 	label,work = await label_work(part=part,name = "total")
 	error = get_error_all(db=db_session,part=part)
 	page_file = f"total_charts.html"
-	return templates.TemplateResponse(page_file,{'request':request,'category':category,'label':label,'work':work,'error':error,'part':part})
+	print(error)
+	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'part':part})
 
 async def label_work(**kwargs):
 	if kwargs['name'] == "total":
@@ -151,7 +164,7 @@ async def search(request:Request,part:str,search_name: str = Form(...),start_dat
 		else:
 			label,work= await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
 			error = get_search_error(db=db_session,part=part,name=search_name)
-		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'label':label,'work':work,'error':error})
+		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'bar_data':label,'work':work,'error':error})
 	else:
 		return RedirectResponse(url=f"/{part}", status_code=302)
 
@@ -175,8 +188,8 @@ async def login_check(request:Request,response:Response,InputEmail: str = Form(.
 		return RedirectResponse(url=f"/main/login", status_code=302)
 @app.get("/main/logout")
 async def logout(request:Request):
-	request.session["name"]=None
-	request.session['field']=None
+	request.session.clear()
+
 	return RedirectResponse(url="/", status_code=302)
 
 @app.post("/main/add_user")

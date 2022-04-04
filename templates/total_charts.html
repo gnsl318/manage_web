@@ -166,12 +166,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="chart-area">
-                                    
                                     <canvas id="Work_count", data-work="{{ work }}">
                                     </canvas>
                                 </div>
                                 <hr>
-                                Total work_count
                             </div>
                         </div>
 
@@ -182,10 +180,9 @@
                             </div>
                             <div class="card-body">
                                 <div class="chart-bar">
-                                    <canvas id="Label_balance", data-label="{{ label }}"></canvas>
+                                    <canvas id="bar_chart", data-data="{{ bar_data }}"></canvas>
                                 </div>
                                 <hr>
-                                Label balance
                             </div>
                         </div>
 
@@ -204,7 +201,6 @@
                                     <canvas id="Error", data-error="{{ error }}"></canvas>
                                 </div>
                                 <hr>
-                                Error
                             </div>
                         </div>
                     </div>
@@ -385,9 +381,9 @@
     <script src="../static/vendor/chart.js/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="../static/js/demo/chart-area-demo.js?ver=1"></script>
-    <script src="../static/js/demo/chart-pie-demo.js?ver=1"></script>
-    <script src="../static/js/demo/chart-bar-demo.js?ver=1"></script>
+    <script src="../static/js/demo/chart-area-demo.js?ver=2"></script>
+    <script src="../static/js/demo/chart-pie-demo.js?ver=2"></script>
+    <script src="../static/js/demo/chart-bar-demo.js?ver=4"></script>
 
 </body>
 

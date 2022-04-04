@@ -5,7 +5,9 @@ Chart.defaults.global.defaultFontColor = '#858796';
 // Pie Chart Example
 var ctx = document.getElementById("Error");
 var data = $("#Error").data("error");
+console.log(data)
 var real_data = JSON.parse(JSON.stringify(data))
+console.log(real_data)
 var myPieChart = new Chart(ctx, {
   type: 'doughnut',
   data: {
