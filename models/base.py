@@ -49,8 +49,8 @@ class Logs(Base):
   user_id = Column(Integer,ForeignKey("users.id"))
   user =  relationship("User")
   work_day = Column(Date)
-  file_name = Column(String(20))
-  info = Column(String(20))
+  file_name = Column(String(200))
+  info = Column(String(200))
 
 class Test_log(Base):
   __tablename__ = "test_log"

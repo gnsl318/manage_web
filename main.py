@@ -104,13 +104,15 @@ async def home(request:Request):
 		total_count = 0
 		for log in log_info:
 			if work_day != log.work_day:
-				work_count =0
-			if json.loads(log.info) != "raw_file":
-				work_count +=1
-				total_count +=1
-				day_work[log.work_day] = work_count
+				work_day = log.work_day
+				work_count = 1
+			else:
+				if len(log.info) != 10:
+					work_count +=1
+					total_count +=1
+			day_work[log.work_day] = work_count
 		if len(day_work) != 0:
-			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values)/len(day_work.kesy())))
+			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
 		else:
 			mean[f"{part.m_class}-{part.s_class}"]=str(0)
 		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
@@ -122,7 +124,6 @@ async def part(request:Request,part:str):
 	label,work = await label_work(part=part,name = "total")
 	error = get_error_all(db=db_session,part=part)
 	page_file = f"total_charts.html"
-	print(error)
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'part':part})
 
 async def label_work(**kwargs):
