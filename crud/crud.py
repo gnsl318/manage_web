@@ -106,7 +106,7 @@ def get_log(
     db:Session,
     part_id:int
 ):
-    log_info=db.query(Logs).filter(Logs.part_id == part_id).all()
+    log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all()
     return log_info
 
 def get_log_all(
@@ -247,6 +247,7 @@ def update_user_info(
 def update_part_info(
     *,
     db : Session,
+    part_id:int,
     l_class:str,
     m_class:str,
     s_class:str,
@@ -255,7 +256,7 @@ def update_part_info(
     end_date:date,
     state:str
 ):
-    part = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
+    part = db.query(Part).filter(Part.id == part_id).first()
     part.l_class =l_class
     part.m_class = m_class
     part.s_class= s_class

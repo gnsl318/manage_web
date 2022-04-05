@@ -96,6 +96,7 @@ async def home(request:Request):
 	part_info=get_parts(db=db_session)
 	data = {}
 	mean = {}
+
 	for part in part_info:
 		part_id = part.id
 		log_info = get_log(db=db_session,part_id=part_id)
@@ -103,30 +104,27 @@ async def home(request:Request):
 		day_work={}
 		total_count = 0
 		for log in log_info:
-			if work_day != log.work_day:
-				work_day = log.work_day
-				work_count = 1
-			else:
-				if len(log.info) != 10:
-					work_count +=1
-					total_count +=1
-			day_work[log.work_day] = work_count
+			try:
+				day_work[log.work_day] +=1
+			except:
+				day_work[log.work_day] =1
 		if len(day_work) != 0:
 			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
 		else:
 			mean[f"{part.m_class}-{part.s_class}"]=str(0)
+		total_count=sum(day_work.values())
 		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
 	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
 	category = get_category()
-	label,work = await label_work(part=part,name = "total")
+	label,work = label_work(part=part,name = "total")
 	error = get_error_all(db=db_session,part=part)
 	page_file = f"total_charts.html"
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'part':part})
 
-async def label_work(**kwargs):
+def label_work(**kwargs):
 	if kwargs['name'] == "total":
 		logs = get_log_all(db=db_session,part=kwargs['part'])
 	elif kwargs['start_date'] != None and kwargs['end_date'] != None:
@@ -134,19 +132,16 @@ async def label_work(**kwargs):
 	else:
 		logs = get_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'])
 	counter = collections.Counter()
-	for log in logs:
-		counter.update(json.loads(log.info))
-	label = dict(sorted(dict(counter).items()))
 	work={}
-	work_day = ""
 	for log in logs:
-		log_work_day = log.work_day.strftime("%Y-%m-%d")
-		if work_day != log_work_day:
-			work_count =1
-			work_day = log_work_day
-		else:
-			work_count +=1
-		work[log_work_day]=str(work_count)
+		if log.info != json.dumps("raw_file"):
+			counter.update(json.loads(log.info))
+			log_work_day = log.work_day.strftime("%Y-%m-%d")
+			try:
+				work[log_work_day] +=1
+			except:
+				work[log_work_day] = 1
+	label = dict(sorted(dict(counter).items()))
 	return json.dumps(label),json.dumps(work)
 
 
@@ -158,10 +153,10 @@ async def search(request:Request,part:str,search_name: str = Form(...),start_dat
 		data['part']=part
 		data['name']=search_name
 		if start_date != None and end_date != None:
-			label,work = await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
+			label,work = label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
 			error = get_date_search_error(db=db_session,part=part,name=search_name,start_date=start_date,end_date=end_date)
 		else:
-			label,work= await label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
+			label,work= label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
 			error = get_search_error(db=db_session,part=part,name=search_name)
 		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'part':part,'bar_data':label,'work':work,'error':error})
 	else:
@@ -242,7 +237,7 @@ async def change_info_search(request:Request,l_class: str = Form(...),m_class: s
 	part_info=get_all_part(db=db_session)
 	part_l_class,part_m_class,part_s_class = get_part_name(part_info)
 	part = get_search_part(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
-
+	request.session["part.id"]=part.id
 	try:
 		if part:
 			return templates.TemplateResponse(page_file,{'request':request,'part_l_class':part_l_class,'part_m_class':part_m_class,'part_s_class':part_s_class,'l_class':part.l_class,'m_class':part.m_class,'s_class':part.s_class,'max_count':part.max_count,'start_date':part.start_day,'end_date':part.end_day,'state':part.state})
@@ -254,9 +249,8 @@ async def change_info_search(request:Request,l_class: str = Form(...),m_class: s
 	
 @app.post("/main/change_part_do")
 async def change_part(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:bool = Form(None)):
-
 	try:
-		update_part_info(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state)
+		update_part_info(db=db_session,part_id=request.session["part.id"],l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state)
 		return RedirectResponse(url="/", status_code=302)
 	except:
 		return RedirectResponse(url="/main/change_part")
