@@ -32,6 +32,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 var ctx = document.getElementById("Work_count");
 var data = $("#Work_count").data("work");
 var real_data = JSON.parse(JSON.stringify(data))
+console.log(real_data)
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
