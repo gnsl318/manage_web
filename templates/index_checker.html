@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Seoreu manager</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="../static/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href=".">
+                <img class="class=img-profile"
+                    src="../static/img/logo.svg" width="50" height="55">
+                <div class="sidebar-brand-text mx-3">Seoreu</div>
+            </a>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+            <!-- Heading -->
+            {% for l_class,m_dic in category.items() %}
+            <div class="sidebar-heading">
+            {{ l_class }}
+            </div>
+            {% for m_class,s_class_list in m_dic.items() %}
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{m_class}}"
+                    aria-expanded="true" aria-controls="collapse{{m_class}}">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>{{ m_class }}</span>
+                </a>
+                <div id="collapse{{m_class}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Sub</h6>
+                        {% for s_class in s_class_list %}
+                        <a class="collapse-item" href="/{{s_class}}">{{ s_class }}</a>
+                        {% endfor %}
+                        <!-- <a class="collapse-item" href="cards.html">Catheter</a> -->
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    <a class="nav-link collapse-item" href="/" id="Chanage_part" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">작업 현황</span>
+                    </a>
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    <a class="nav-link collapse-item" href="/main/checker" id="Chanage_part" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">검수 현황</span>
+                    </a>
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form
+                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    </form>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    {% if request.session.field == "Annotation" or request.session.field == "개발" %}
+                    <a class="nav-link collapse-item" href="/main/change_part" id="Chanage_part" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">프로젝트 정보 수정</span>
+                    </a>
+                    {% endif %}
+                    {% if request.session.field == "운영" or request.session.field == "개발" %}
+                    <a class="nav-link collapse-item" href="/main/change_info" id="Chanage_info" role="button">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">인원정보 수정</span>
+                    </a>
+                    {% endif %}
+                    <div class="topbar-divider d-none d-sm-block"></div>
+                    {% if request.session.name %}
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                            <span class=" d-none d-lg-inline text-gray-600">{{ request.session.name }}</span>
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            {% if request.session.field == "운영" or request.session.field == "개발" %}
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#adduserModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Add-User
+                            </a>
+                            {% endif %}
+                            {% if request.session.field == "Annotation" or request.session.field == "개발" %}
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addprojectModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Add-Project
+                            </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+                    {% else %}
+                    <a class="collapse-item" href="./main/login" id="userDropdown" role="button">
+                        <i class="mr-2 d-none d-lg-inline text-gray-600 small"> Log in</i>
+                    </a>
+                    {% endif %}
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">전체 검수 현황</h1>
+                        <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> -->
+                    </div>
+
+                    <!-- Project Card Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
+                        </div>
+                            
+                            <div class="card-body">
+                                {% for part,value in data.items() %}
+                                <h4 class="small font-weight-bold">{{ part }} <span
+                                        class="float-right">{{ value }}%</span></h4>
+                                <div class="progress mb-4">
+                                    {% if value < 20 %}
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{value}}%"
+                                        aria-valuenow= "{{ value }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    {% elif value < 40 %}
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{value}}%"
+                                        aria-valuenow= "{{ value }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    {% elif value < 60 %}
+                                    <div class="progress-bar" role="progressbar" style="width: {{value}}%"
+                                        aria-valuenow= "{{ value }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    {% elif value < 80 %}
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{value}}%"
+                                        aria-valuenow= "{{ value }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    {% else %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{value}}%"
+                                        aria-valuenow= "{{ value }}" aria-valuemin="0" aria-valuemax="100"></div>   
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                    </div> 
+                     <!-- Bar Chart -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">파트별 1일 평균 작업량</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="bar_chart", data-data="{{ bar_data }}"></canvas>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>    
+
+                </div>
+                <!-- /.container-fluid -->
+               
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright Seoreu &copy; Your Website 2022</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="/main/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Add user Modal-->
+    <div class="modal fade" id="adduserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Welcom Seoreu</div>
+                <form class="user" action = "/main/add_user" method = "post">
+                    <div class="form-group">
+                        Employee_number :
+                        <input type="text" class="form-control form-control-user"
+                            id="Employee_number" name="Employee_number" aria-describedby="emailHelp"
+                            placeholder="Employee_number">
+                    </div>
+                    <div class="form-group">
+                        Name :
+                        <input type="text" class="form-control form-control-user"
+                            id="Name" name="Name" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        E-mail :
+                        <input type="email" class="form-control form-control-user"
+                            id="email" name="email" placeholder="Email">
+                    </div>
+                    
+                    <div class="form-group">
+                        Field :
+                        <style>
+                            select {
+                                width: 100%;
+                                height: calc(1.5em + 0.75rem + 2px);
+                                padding: 0.375rem 0.75rem;
+                                font-size: 1rem;
+                                font-weight: 400;
+                                line-height: 1.5;
+                                color: #6e707e;
+                                background-color: #fff;
+                                background-clip: padding-box;
+                                border: 1px solid #d1d3e2;
+                                border-radius: 0.35rem;
+                                transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                            }
+                        </style>
+                        <select name="field">
+                            <option value="운영">운영</option>
+                            <option value="개발">개발</option>
+                            <option value="Annotation">Annotation</option>
+                            <option value="아르바이트">아르바이터</option>
+                            <option value="미정">미정</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <input class="btn btn-primary" type="submit" value=Add href="#"></a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Add project Modal-->
+    <div class="modal fade" id="addprojectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Project</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body"></div>
+                <form class="user" action = "/main/add_project" method = "post">
+                    <div class="form-group">
+                        거래처
+                        <input type="text" class="form-control form-control-user"
+                            id="l_class" name="l_class" placeholder="거래처">
+                    </div>
+                    <div class="form-group">
+                        Part
+                        <input type="text" class="form-control form-control-user"
+                            id="m_class" name="m_class" placeholder="Part">
+                    </div>
+                    <div class="form-group">
+                        Task
+                        <input type="text" class="form-control form-control-user"
+                            id="s_class" name="s_class" placeholder="Task">
+                    </div>
+                    <div class="form-group">
+                        목표 수량
+                        <input type="int" class="form-control form-control-user"
+                            id="max_count" name="max_count" placeholder="Max_count">
+                    </div>
+                    <div class="form-group">
+                        Start_date
+                        <input type="date" class="form-control form-control-user"
+                            id="start_date" name="start_date" placeholder="Start_date">
+                    </div>
+                    <div class="form-group">
+                        End_date
+                        <input type="date" class="form-control form-control-user"
+                            id="end_date" name="end_date" placeholder="End_date">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <input class="btn btn-primary" type="submit" value=Add href="#"></a>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <script src="../static/vendor/jquery/jquery.min.js?ver=1"></script>
+    <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js?ver=1"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="../static/vendor/jquery-easing/jquery.easing.min.js?ver=1"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="../static/js/sb-admin-2.min.js?ver=1"></script>
+
+    <!-- Page level plugins -->
+    <script src="../static//vendor/chart.js/Chart.min.js?ver=1"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="../static/js/demo/chart-bar-demo.js?ver=5"></script>
+
+</body>
+
+</html>
