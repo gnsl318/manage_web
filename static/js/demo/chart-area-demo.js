@@ -78,6 +78,9 @@ var myLineChart = new Chart(ctx, {
       }],
       yAxes: [{
         ticks: {
+          min: 0,
+          // max: 50,
+          max: Object.values(real_data).sort()[-1],
           maxTicksLimit: 5,
           padding: 10,
           // Include a dollar sign in the ticks

@@ -156,9 +156,13 @@ def get_search_error(
 
     error_dic={}
     part_id = db.query(Part).filter(Part.s_class == part).first().id
-    user_id = db.query(User).filter(User.name==name).first().id
-    error_info=db.query(Error).filter(Error.user_id==user_id).all()
-    error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==user_id)).all())
+    if name =="term":
+        error_info=db.query(Error).all()
+        error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all())
+    else:
+        user_id = db.query(User).filter(User.name==name).first().id
+        error_info=db.query(Error).filter(Error.user_id==user_id).all()
+        error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==user_id)).all())
     for error in error_info:
         error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
         if error_dic:
@@ -193,9 +197,13 @@ def get_date_search_log(
     start_date:date,
     end_date:date,
 ):
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
-    name_id = db.query(User).filter(User.name == name).first().id
-    log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==name_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all()
+    if name =="term":
+        part_id = db.query(Part).filter(Part.s_class == part).first().id
+        log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all()
+    else:
+        part_id = db.query(Part).filter(Part.s_class == part).first().id
+        name_id = db.query(User).filter(User.name == name).first().id
+        log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==name_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all()       
     return log_info 
 def get_date_search_error(
     *,
@@ -205,12 +213,16 @@ def get_date_search_error(
     start_date:date,
     end_date:date,
 ):
-
     error_dic={}
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
-    user_id = db.query(User).filter(User.name==name).first().id
-    error_info=db.query(Error).filter(Error.user_id==user_id).all()
-    error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==user_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all())
+    if name =="term":
+        part_id = db.query(Part).filter(Part.s_class == part).first().id
+        error_info=db.query(Error).all()
+        error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all())
+    else:
+        part_id = db.query(Part).filter(Part.s_class == part).first().id
+        user_id = db.query(User).filter(User.name==name).first().id
+        error_info=db.query(Error).filter(Error.user_id==user_id).all()
+        error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==user_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all())
     for error in error_info:
         error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
         if error_dic:
