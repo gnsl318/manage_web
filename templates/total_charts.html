@@ -100,7 +100,6 @@
                     </form>
 
                     <div class="topbar-divider d-none d-sm-block"></div>
-                    </ul>
                     {% if request.session.field == "Annotation" or request.session.field == "개발" %}
                     <a class="nav-link collapse-item" href="/main/change_part" id="Chanage_part" role="button">
                         <span class="mr-2 d-none d-lg-inline text-gray-600">프로젝트 정보 수정</span>
@@ -151,18 +150,27 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
+                    {% if request.session.field == "운영" or request.session.field == "개발" or request.session.field == "Annotation" %}
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">{{ part }}</h1>
-                    <!-- Content Row -->
-                    <!-- <div class="row"> -->
+                    <h1 class="h3 mb-2 text-gray-800">{{ part }}
+                        <a class="btn btn-primary float-right" href="/download/{{part}}" download>
+                            Download
+                        </a>
+                    </h1>
+                    {% endif %}
+                        <!-- Sidebar Toggle (Topbar) -->
+                    
 
+
+                    
+
+                    <!-- Content Row -->                    
                     <div class="col-xl-8 col-lg-7">
-
                         <!-- Area Chart -->
                         <div class="card shadow mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Work_count Chart</h6>
+                                <h6 class="m-0 font-weight-bold text-primary">Work_count Chart
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="chart-area">

@@ -11,6 +11,7 @@ import json
 import collections
 from typing import Optional
 import smtplib
+import pandas as pd
 
 Base.metadata.create_all(bind=engine)
 
@@ -184,7 +185,7 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 				error = get_date_search_error(db=db_session,part=part,name=search_name,start_date=start_date,end_date=end_date)
 			else:
 				if start_date == None:
-					start_date == datetime.date(2022,4,1).strftime("%Y-%m-%d")
+					start_date == datetime.date(2022,3,1).strftime("%Y-%m-%d")
 				if end_date == None:
 					end_date = datetime.date.today().strftime("%Y-%m-%d")
 				label,work= label_work(part=part,name=search_name,start_date=start_date,end_date=end_date)
@@ -198,7 +199,7 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 			error = get_date_search_error(db=db_session,part=part,name="term",start_date=start_date,end_date=end_date)
 		else:
 			if start_date == None:
-				start_date = datetime.date(2022,4,1)
+				start_date = datetime.date(2022,3,1)
 			if end_date == None:
 				end_date = datetime.date.today().strftime("%Y-%m-%d")
 			label,work= label_work(part=part,name="term",start_date=start_date,end_date=end_date)
@@ -299,3 +300,43 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 		return RedirectResponse(url="/", status_code=302)
 	except:
 		return RedirectResponse(url="/main/change_part")
+
+
+@app.get("/download/{part}")
+def dwonload_file(request:Request,part:str):
+	logs = get_log_all(db=db_session,part=part)
+	error = get_error_all(db=db_session,part=part)
+	dic_count={}
+	dic_label={}
+	for log in logs:
+		try:
+			dic_count[f"{log.user.name}/{log.work_day}"] +=1
+		except:
+			dic_count[f"{log.user.name}/{log.work_day}"] =1
+		try:
+			dic_label[f"{log.user.name}/{log.work_day}"] +=len(json.loads(log.info))
+		except:
+			dic_label[f"{log.user.name}/{log.work_day}"] =len(json.loads(log.info))
+	name_list=[]
+	date_list=[]
+	count_list =[]
+	label_list=[]
+	for count,label in zip(dic_count,dic_label):
+		name_list.append(count.split("/")[0])
+		date_list.append(count.split("/")[-1])
+		count_list.append(dic_count[count])
+		label_list.append(dic_label[label])
+	df = pd.DataFrame()
+	df["name"]= name_list
+	df["date"] = date_list
+	df["work_count"] = count_list
+	df["label_count"] = label_list
+	file_name=f"{part}_log"
+	write_excel(df,file_name)
+	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
+	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.date.now().strftime('%d/%m/%Y %H:%M:%S')}.xlsx")
+
+def write_excel(df,file_name):
+    writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+    df.to_excel(writer,index=False)
+    writer.save()
