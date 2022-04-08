@@ -334,7 +334,7 @@ def dwonload_file(request:Request,part:str):
 	file_name=f"{part}_log"
 	write_excel(df,file_name)
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
-	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.date.now().strftime('%d/%m/%Y %H:%M:%S')}.xlsx")
+	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
 
 def write_excel(df,file_name):
     writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
