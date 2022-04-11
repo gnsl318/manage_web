@@ -56,7 +56,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Sub</h6>
                         {% for s_class in s_class_list %}
-                        <a class="collapse-item" href="./{{s_class}}">{{ s_class }}</a>
+                        <a class="collapse-item" href="./{{l_class}}-{{m_class}}-{{s_class}}">{{ s_class }}</a>
                         {% endfor %}
                         <!-- <a class="collapse-item" href="cards.html">Catheter</a> -->
                     </div>
@@ -142,7 +142,17 @@
 
                 </nav>
                 <!-- End of Topbar -->
-
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    {% if request.session.field == "운영" or request.session.field == "개발" %}
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">
+                        <a class="btn btn-primary float-right" href="/download/all" download>
+                            Download
+                        </a>
+                    </h1>
+                    {% endif %}
+                        <!-- Sidebar Toggle (Topbar) -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 

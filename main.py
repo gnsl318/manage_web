@@ -12,6 +12,8 @@ import collections
 from typing import Optional
 import smtplib
 import pandas as pd
+import time
+import multiprocessing
 
 Base.metadata.create_all(bind=engine)
 
@@ -122,7 +124,6 @@ async def home(request:Request):
 	part_info=get_parts(db=db_session)
 	data = {}
 	mean = {}
-
 	for part in part_info:
 		part_id = part.id
 		log_info = get_log(db=db_session,part_id=part_id)
@@ -144,18 +145,21 @@ async def home(request:Request):
 @app.get("/{part}")
 async def part(request:Request,part:str):
 	category = get_category()
-	label,work = label_work(part=part,name = "total")
-	error = get_error_all(db=db_session,part=part)
+	l_class = part.split("-")[0]
+	m_class = part.split("-")[1]
+	s_class = part.split("-")[-1]
+	label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name = "total")
+	error = get_error_all(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
 	page_file = f"total_charts.html"
-	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'part':part})
+	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'l_class':l_class,'m_class':m_class,'s_class':s_class})
 
 def label_work(**kwargs):
 	if kwargs['name'] == "total":
-		logs = get_log_all(db=db_session,part=kwargs['part'])
+		logs = get_log_all(db=db_session,l_class=kwargs["l_class"],m_class=kwargs["m_class"],s_class=kwargs["s_class"])
 	elif kwargs['start_date'] != None and kwargs['end_date'] != None:
 		logs = get_date_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'],start_date=kwargs['start_date'],end_date=kwargs['end_date'])
 	else:
-		logs = get_search_log(db=db_session,part=kwargs['part'],name=kwargs['name'])
+		logs = get_search_log(db=db_session,l_class=kwargs["l_class"],m_class=kwargs["m_class"],s_class=kwargs["s_class"],name=kwargs['name'])
 	counter = collections.Counter()
 	work={}
 	for log in logs:
@@ -300,43 +304,71 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 		return RedirectResponse(url="/", status_code=302)
 	except:
 		return RedirectResponse(url="/main/change_part")
-
-
-@app.get("/download/{part}")
-def dwonload_file(request:Request,part:str):
-	logs = get_log_all(db=db_session,part=part)
-	error = get_error_all(db=db_session,part=part)
+def make_df(db,l_class,m_class,s_class,writer):
+	logs = get_log_all_raw(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
+	error = get_error_all(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
 	dic_count={}
 	dic_label={}
+	dic_raw={}
 	for log in logs:
-		try:
-			dic_count[f"{log.user.name}/{log.work_day}"] +=1
-		except:
-			dic_count[f"{log.user.name}/{log.work_day}"] =1
-		try:
-			dic_label[f"{log.user.name}/{log.work_day}"] +=len(json.loads(log.info))
-		except:
-			dic_label[f"{log.user.name}/{log.work_day}"] =len(json.loads(log.info))
+		data = json.loads(log.info)
+		if data == "raw_file":
+			try:
+				dic_raw[f"{log.user.name}/{log.work_day}"] +=1
+			except:
+				dic_raw[f"{log.user.name}/{log.work_day}"] =1
+		else:
+			try:
+				dic_count[f"{log.user.name}/{log.work_day}"] +=1
+			except:
+				dic_count[f"{log.user.name}/{log.work_day}"] =1
+			labels = 0
+			for label_count in data.values():
+				labels +=label_count
+			try:
+				dic_label[f"{log.user.name}/{log.work_day}"] +=labels
+			except:
+				dic_label[f"{log.user.name}/{log.work_day}"] =labels
 	name_list=[]
 	date_list=[]
 	count_list =[]
 	label_list=[]
-	for count,label in zip(dic_count,dic_label):
-		name_list.append(count.split("/")[0])
-		date_list.append(count.split("/")[-1])
-		count_list.append(dic_count[count])
-		label_list.append(dic_label[label])
+	raw_list=[]
+	for key,value in dic_raw.items():
+		name_list.append(key.split("/")[0])
+		date_list.append(key.split("/")[-1])
+		count_list.append(dic_count[key])
+		label_list.append(dic_label[key])
+		raw_list.append(dic_raw[key])
 	df = pd.DataFrame()
 	df["name"]= name_list
 	df["date"] = date_list
+	df["raw_count"] = raw_list
 	df["work_count"] = count_list
 	df["label_count"] = label_list
-	file_name=f"{part}_log"
-	write_excel(df,file_name)
+	df.to_excel(writer,sheet_name=f"{l_class}-{m_class}-{s_class}",index=False)
+
+@app.get("/download/{part}")
+def dwonload_file(request:Request,part:str):
+	start=time.time()
+	if part == "all":
+		file_name=f"all_log"
+		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+		part_list=get_parts(db=db_session)
+		for part in part_list:
+			l_class = part.l_class
+			m_class = part.m_class
+			s_class = part.s_class
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer)
+	else:
+		file_name=f"{part}_log"
+		l_class = part.split("-")[0]
+		m_class = part.split("-")[1]
+		s_class = part.split("-")[-1]
+		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+		make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer)
+	writer.save()
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
 	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
 
-def write_excel(df,file_name):
-    writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
-    df.to_excel(writer,index=False)
-    writer.save()
+    

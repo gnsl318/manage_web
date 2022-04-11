@@ -112,22 +112,38 @@ def get_log(
 def get_log_all(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+):  
+    part_id = db.query(Part).filter(and_(Part.s_class==s_class,Part.l_class==l_class,Part.m_class==m_class)).first().id
+    log_info=db.query(Logs).filter(and_((Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id))).all()
+    return log_info
+
+def get_log_all_raw(
+    *,
+    db:Session,
+    l_class:str,
+    m_class:str,
+    s_class:str,
 ):
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
-    log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all()
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
+    log_info=db.query(Logs).filter(Logs.part_id==part_id).all()
     return log_info
 
 def get_error_all(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
 ):
-    error_info=db.query(Error).all()
+    
 
     error_dic={}
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
-    error_dic['Success']=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all())
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
+    error_info=db.query(Error).filter(Error.part_id==part_id).all()
+    error_dic['Success']=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file"),Part.s_class == s_class,Part.l_class==l_class,Part.m_class==m_class)).all())
     
     for error in error_info:
         error_name = db.query(Error_list).filter(Error_list.id == error.id).first()
@@ -140,10 +156,12 @@ def get_error_all(
 def get_search_log(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
     name:str,
 ):
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     name_id = db.query(User).filter(User.name == name).first().id
     log_info=db.query(Logs).filter(and_((Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==name_id))).all()
     return log_info 

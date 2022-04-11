@@ -25,7 +25,7 @@ class Part(Base):
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
   l_class  = Column(String(20))
   m_class  = Column(String(20))
-  s_class = Column(String(20),unique=True)
+  s_class = Column(String(20))
   max_count = Column(Integer)
   start_day = Column(Date)
   end_day = Column(Date)
