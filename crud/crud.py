@@ -6,7 +6,7 @@ from models.base import *
 import datetime
 import json
 
-
+## 파트 생성
 def create_part(
     *,
     db : Session,
@@ -33,6 +33,7 @@ def create_part(
         return new_part
     else:
         return False
+## 유저 생성
 def create_user(
     *,
     db : Session,
@@ -55,21 +56,21 @@ def create_user(
         return new_user
     else:
         return False
-
+## 모든 유저 가져오기
 def get_all_user(
     *,
     db:Session,
 ):
     user_info = db.query(User).all()
     return user_info
-
+## 모든 파트 가져오기
 def get_all_part(
     *,
     db:Session,
 ):
     part_info = db.query(Part).all()
     return part_info
-
+## 이름으로 유저 검색
 def get_search_user(
     *,
     db:Session,
@@ -77,7 +78,7 @@ def get_search_user(
 ):
     user_info =db.query(User).filter(User.name==name).first()
     return user_info
-
+## 특정파트 검색
 def get_search_part(
     *,
     db:Session,
@@ -87,20 +88,14 @@ def get_search_part(
 ):
     part_info =db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
     return part_info
-
+## 진행중인 파트 가져오기
 def get_parts(
     *,
     db:Session,
 ):
     part_info=db.query(Part).filter(Part.state == True).all()
     return part_info
-
-def get_error_list(
-    *,
-    db:Session,
-):
-    error_info=db.query(Error_list).all()
-    return error_info
+## 특정 파트_id로 result_file만 가져오기
 def get_log(
     *,
     db:Session,
@@ -108,7 +103,7 @@ def get_log(
 ):
     log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all()
     return log_info
-
+## 특정 파트 전체 이름으로 result_file만 가져오기
 def get_log_all(
     *,
     db:Session,
@@ -119,7 +114,7 @@ def get_log_all(
     part_id = db.query(Part).filter(and_(Part.s_class==s_class,Part.l_class==l_class,Part.m_class==m_class)).first().id
     log_info=db.query(Logs).filter(and_((Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id))).all()
     return log_info
-
+## 특정 파트 전체 이름으로 all_log가져오기
 def get_log_all_raw(
     *,
     db:Session,
@@ -130,7 +125,7 @@ def get_log_all_raw(
     part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     log_info=db.query(Logs).filter(Logs.part_id==part_id).all()
     return log_info
-
+## 특정 파트 전체 이름으로 error_log 가져오기
 def get_error_all(
     *,
     db:Session,
@@ -152,7 +147,7 @@ def get_error_all(
         else:
             error_dic[error_name] = 1
     return json.dumps(error_dic)
-
+## 특정 파트 전체이름 과 유저 이름으로 result_file만 가져오기
 def get_search_log(
     *,
     db:Session,
@@ -165,15 +160,18 @@ def get_search_log(
     name_id = db.query(User).filter(User.name == name).first().id
     log_info=db.query(Logs).filter(and_((Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==name_id))).all()
     return log_info 
+## 특정 파트 전체이름과 유저 이름으로 error_log 가져오기
 def get_search_error(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
     name:str,
 ):
 
     error_dic={}
-    part_id = db.query(Part).filter(Part.s_class == part).first().id
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     if name =="term":
         error_info=db.query(Error).all()
         error_dic["Success"]=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all())
@@ -188,15 +186,7 @@ def get_search_error(
         else:
             error_dic[error_name] = 1
     return json.dumps(error_dic)
-
-def get_part_name(
-    *,
-    db:Session,
-    part:str,
-    name:str
-): 
-    return True
-
+## 특정 유저 유무 검색
 def get_name(
     *,
     db:Session,
@@ -206,27 +196,31 @@ def get_name(
         return True
     else:
         return False
-
+## 특정 파트 전체이름/ 특정 날짜/ 이름 으로 result_file만 가져오기
 def get_date_search_log(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
     name:str,
     start_date:date,
     end_date:date,
 ):
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     if name =="term":
-        part_id = db.query(Part).filter(Part.s_class == part).first().id
         log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all()
     else:
-        part_id = db.query(Part).filter(Part.s_class == part).first().id
         name_id = db.query(User).filter(User.name == name).first().id
         log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id),(Logs.user_id==name_id),(Logs.work_day>=start_date),(Logs.work_day<=end_date)).all()       
     return log_info 
+## 특정 파트 전체이름/ 특정 날짜/ 이름 으로 error_log만 가져오기
 def get_date_search_error(
     *,
     db:Session,
-    part:str,
+    l_class:str,
+    m_class:str,
+    s_class:str,
     name:str,
     start_date:date,
     end_date:date,
@@ -248,7 +242,7 @@ def get_date_search_error(
         else:
             error_dic[error_name] = 1
     return json.dumps(error_dic)
-
+## 이메일로 유저 정보 가졍괴
 def get_session(
     *,
     db:Session,
@@ -256,7 +250,7 @@ def get_session(
 ): 
     user = db.query(User).filter(User.email==email).first()
     return user
-
+## 유저 정보 업데이트
 def update_user_info(
     *,
     db:Session,
@@ -273,7 +267,7 @@ def update_user_info(
     user.field=field
     db.commit()
     return user
-
+## 파트 정보 업데이트
 def update_part_info(
     *,
     db : Session,
