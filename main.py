@@ -13,7 +13,6 @@ from typing import Optional
 import smtplib
 import pandas as pd
 import time
-import multiprocessing
 
 Base.metadata.create_all(bind=engine)
 
@@ -307,12 +306,13 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 		return RedirectResponse(url="/", status_code=302)
 	except:
 		return RedirectResponse(url="/main/change_part")
+
 def make_df(db,l_class,m_class,s_class,writer):
 	logs = get_log_all_raw(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
-	error = get_error_all(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
 	dic_count={}
 	dic_label={}
 	dic_raw={}
+	counter = collections.Counter()
 	for log in logs:
 		data = json.loads(log.info)
 		if data == "raw_file":
@@ -321,6 +321,7 @@ def make_df(db,l_class,m_class,s_class,writer):
 			except:
 				dic_raw[f"{log.user.name}/{log.work_day}"] =1
 		else:
+			counter.update(json.loads(log.info))
 			try:
 				dic_count[f"{log.user.name}/{log.work_day}"] +=1
 			except:
@@ -337,6 +338,7 @@ def make_df(db,l_class,m_class,s_class,writer):
 	count_list =[]
 	label_list=[]
 	raw_list=[]
+	label = dict(sorted(dict(counter).items()))
 	for key,value in dic_raw.items():
 		name_list.append(key.split("/")[0])
 		date_list.append(key.split("/")[-1])
@@ -348,7 +350,9 @@ def make_df(db,l_class,m_class,s_class,writer):
 	df["date"] = date_list
 	df["raw_count"] = raw_list
 	df["work_count"] = count_list
-	df["label_count"] = label_list
+	df["label_total_count"] = label_list
+	df["label"]= pd.Series(list(label.keys()))
+	df["label_count"]=pd.Series(list(label.values()))
 	df.to_excel(writer,sheet_name=f"{l_class}-{m_class}-{s_class}",index=False)
 
 @app.get("/download/{part}")
