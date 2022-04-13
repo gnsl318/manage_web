@@ -26,7 +26,8 @@ def create_part(
             max_count = max_count,
             start_day=start_date,
             end_day=end_date,
-            state = True
+            state = True,
+            check_status = True,
         )
         db.add(new_part)
         db.commit()
@@ -103,6 +104,7 @@ def get_log(
 ):
     log_info=db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file")),(Logs.part_id==part_id)).all()
     return log_info
+
 ## 특정 파트 전체 이름으로 result_file만 가져오기
 def get_log_all(
     *,
@@ -278,7 +280,8 @@ def update_part_info(
     max_count:int,
     start_date:date,
     end_date:date,
-    state:str
+    state:str,
+    check_state:str,
 ):
     part = db.query(Part).filter(Part.id == part_id).first()
     part.l_class =l_class
@@ -289,6 +292,9 @@ def update_part_info(
     part.end_day = end_date,
     if state==None:
         state=True
+    if check_state == None:
+        state=True
     part.state = state
+    part.check_state = check_state
     db.commit()
     return part

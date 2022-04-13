@@ -32,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href=".">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
                 <img class="class=img-profile"
                     src="../static/img/logo.svg" width="50" height="55">
                 <div class="sidebar-brand-text mx-3">Seoreu</div>
@@ -56,7 +56,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Sub</h6>
                         {% for s_class in s_class_list %}
-                        <a class="collapse-item" href="/{{s_class}}">{{ s_class }}</a>
+                        <a class="collapse-item" href="./{{l_class}}-{{m_class}}-{{s_class}}">{{ s_class }}</a>
                         {% endfor %}
                         <!-- <a class="collapse-item" href="cards.html">Catheter</a> -->
                     </div>
@@ -80,7 +80,7 @@
                         <span class="mr-2 d-none d-lg-inline text-gray-600">작업 현황</span>
                     </a>
                     <div class="topbar-divider d-none d-sm-block"></div>
-                    <a class="nav-link collapse-item" href="/main/checker" id="Chanage_part" role="button">
+                    <a class="nav-link collapse-item" href="/checker/main" id="Chanage_part" role="button">
                         <span class="mr-2 d-none d-lg-inline text-gray-600">검수 현황</span>
                     </a>
                     <div class="topbar-divider d-none d-sm-block"></div>
@@ -142,7 +142,17 @@
 
                 </nav>
                 <!-- End of Topbar -->
-
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    {% if request.session.field == "운영" or request.session.field == "개발" %}
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">
+                        <a class="btn btn-primary float-right" href="/download/all" download>
+                            Download
+                        </a>
+                    </h1>
+                    {% endif %}
+                        <!-- Sidebar Toggle (Topbar) -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
@@ -188,7 +198,7 @@
                      <!-- Bar Chart -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">파트별 1일 평균 작업량</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">파트별 1일 평균 검수량</h6>
                         </div>
                         <div class="card-body">
                             <div class="chart-bar">

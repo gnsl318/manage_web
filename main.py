@@ -13,11 +13,13 @@ from typing import Optional
 import smtplib
 import pandas as pd
 import time
+from routers import checker
+from func import *
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
+app.include_router(checker.router)
 app.add_middleware(
 	CORSMiddleware,
 	allow_origins=["*"],
@@ -26,18 +28,6 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 app.add_middleware(SessionMiddleware, secret_key="example")
-
-
-def get_db():
-        db = SessionLocal()
-        try:
-                yield db
-        except:
-                db.rollback()
-                raise
-        finally:
-                db.close()
-
 
 
 db_session = next(get_db())
@@ -49,47 +39,7 @@ app.mount("/static",StaticFiles(directory="static"),name="static")
 async def favicon():
 	return FileResponse(os.path.join(os.getcwd(),"static/img/logo.ico"))
 
-def get_category():
-	part_info = get_parts(db=db_session)
-	category={}
-	l_class = ""
-	m_class = ""
-	for part in part_info:
-		if l_class != part.l_class:
-			l_class = part.l_class
-			m_dic={}	
-			if m_class != part.m_class:
-				m_class = part.m_class
-				s_class_list = [part.s_class]
-				m_dic[m_class]=s_class_list
-			else:
-				s_class_list.append(part.s_class)
-				m_dic[m_class]=s_class_list
-		else:
-			if m_class != part.m_class:
-				m_class = part.m_class
-				s_class_list = [part.s_class]
-				m_dic[m_class]=s_class_list
-			else:
-				s_class_list.append(part.s_class)
-				m_dic[m_class]=s_class_list
-		category[l_class]=m_dic
-	return category
-def get_user_name(user_info):
-	user_name=[]
-	for user in user_info:
-		user_name.append(user.name)
-	return user_name
 
-def get_part_name(part_info):
-	part_l_class=[]
-	part_m_class=[]
-	part_s_class=[]
-	for part in part_info:
-		part_l_class.append(part.l_class)
-		part_m_class.append(part.m_class)
-		part_s_class.append(part.s_class)
-	return list(set(part_l_class)),list(set(part_m_class)),sorted(list(set(part_s_class)))
 
 
 @app.get("/")
@@ -117,29 +67,7 @@ async def home(request:Request):
 		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
 	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
 
-@app.get("/main/checker")
-async def home(request:Request):
-	category = get_category()
-	part_info=get_parts(db=db_session)
-	data = {}
-	mean = {}
-	for part in part_info:
-		part_id = part.id
-		log_info = get_log(db=db_session,part_id=part_id)
-		day_work={}
-		total_count = 0
-		for log in log_info:
-			try:
-				day_work[log.work_day] +=1
-			except:
-				day_work[log.work_day] =1
-		if len(day_work) != 0:
-			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
-		else:
-			mean[f"{part.m_class}-{part.s_class}"]=str(0)
-		total_count=sum(day_work.values())
-		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
-	return templates.TemplateResponse('index_checker.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
+
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
@@ -152,25 +80,7 @@ async def part(request:Request,part:str):
 	page_file = f"total_charts.html"
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'l_class':l_class,'m_class':m_class,'s_class':s_class})
 
-def label_work(**kwargs):
-	if kwargs['name'] == "total":
-		logs = get_log_all(db=db_session,l_class=kwargs["l_class"],m_class=kwargs["m_class"],s_class=kwargs["s_class"])
-	elif kwargs['start_date'] != None and kwargs['end_date'] != None:
-		logs = get_date_search_log(db=db_session,l_class=kwargs["l_class"],m_class=kwargs["m_class"],s_class=kwargs["s_class"],name=kwargs['name'],start_date=kwargs['start_date'],end_date=kwargs['end_date'])
-	else:
-		logs = get_search_log(db=db_session,l_class=kwargs["l_class"],m_class=kwargs["m_class"],s_class=kwargs["s_class"],name=kwargs['name'])
-	counter = collections.Counter()
-	work={}
-	for log in logs:
-		if log.info != json.dumps("raw_file"):
-			counter.update(json.loads(log.info))
-			log_work_day = log.work_day.strftime("%Y-%m-%d")
-			try:
-				work[log_work_day] +=1
-			except:
-				work[log_work_day] = 1
-	label = dict(sorted(dict(counter).items()))
-	return json.dumps(label),json.dumps(work)
+
 
 @app.get('/{part}/search')
 async def serch(request:Request,part:str):
@@ -292,7 +202,7 @@ async def change_info_search(request:Request,l_class: str = Form(...),m_class: s
 	try:
 		if part:
 			request.session["part.id"]=part.id
-			return templates.TemplateResponse(page_file,{'request':request,'part_l_class':part_l_class,'part_m_class':part_m_class,'part_s_class':part_s_class,'l_class':part.l_class,'m_class':part.m_class,'s_class':part.s_class,'max_count':part.max_count,'start_date':part.start_day,'end_date':part.end_day,'state':part.state})
+			return templates.TemplateResponse(page_file,{'request':request,'part_l_class':part_l_class,'part_m_class':part_m_class,'part_s_class':part_s_class,'l_class':part.l_class,'m_class':part.m_class,'s_class':part.s_class,'max_count':part.max_count,'start_date':part.start_day,'end_date':part.end_day,'state':part.state,'check_state':part.check_state})
 		else:
 			return RedirectResponse(url="/main/change_part", status_code=302)
 	except:
@@ -300,9 +210,9 @@ async def change_info_search(request:Request,l_class: str = Form(...),m_class: s
 
 	
 @app.post("/main/change_part_do")
-async def change_part(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:bool = Form(None)):
+async def change_part(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:bool = Form(None),check_state:bool = Form(None)):
 	try:
-		update_part_info(db=db_session,part_id=request.session["part.id"],l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state)
+		update_part_info(db=db_session,part_id=request.session["part.id"],l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state,check_state=check_state)
 		return RedirectResponse(url="/", status_code=302)
 	except:
 		return RedirectResponse(url="/main/change_part")

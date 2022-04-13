@@ -131,6 +131,14 @@
                                                 <option value="False">종료</option>
                                             </select>
                                         </div>
+                                        <div class="form-group">
+                                            State : {{ check_state }}
+                                            <select name="check_state">
+                                                <option value="None" selected>==Select==</option>
+                                                <option value="True">진행</option>
+                                                <option value="False">종료</option>
+                                            </select>
+                                        </div>
                                         <div></div>
                                         <input type="submit" value="변경" class="btn btn-primary btn-user btn-block"/>
                                     </form>

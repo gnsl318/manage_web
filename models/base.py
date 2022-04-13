@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 import datetime
 import sys
 import os
-from db.session import Base
+from db.session import Base,engine
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
@@ -30,6 +30,7 @@ class Part(Base):
   start_day = Column(Date)
   end_day = Column(Date)
   state = Column(Boolean)
+  check_state = Column(Boolean)
 
 
 class Raw(Base):
@@ -43,6 +44,17 @@ class Raw(Base):
 
 class Logs(Base):
   __tablename__ = "log"
+  id = Column(Integer, primary_key = True, autoincrement=True,index=True)
+  part_id = Column(Integer,ForeignKey("part.id"))
+  part = relationship("Part")
+  user_id = Column(Integer,ForeignKey("users.id"))
+  user =  relationship("User")
+  work_day = Column(Date)
+  file_name = Column(String(200))
+  info = Column(String(200))
+
+class Check_Logs(Base):
+  __tablename__ = "check_log"
   id = Column(Integer, primary_key = True, autoincrement=True,index=True)
   part_id = Column(Integer,ForeignKey("part.id"))
   part = relationship("Part")

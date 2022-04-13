@@ -1,5 +1,4 @@
 
-
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -18,3 +17,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 #session = SessionLocal()
 
+
+def get_db():
+        db = SessionLocal()
+        try:
+                yield db
+        except:
+                db.rollback()
+                raise
+        finally:
+                db.close()
