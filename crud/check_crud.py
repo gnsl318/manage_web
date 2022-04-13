@@ -88,3 +88,16 @@ def get_date_search_check_error(
         else:
             error_dic[error_name] = 1
     return json.dumps(error_dic)
+
+
+## 특정 파트 전체 이름으로 all_log가져오기
+def get_check_log_all_raw(
+    *,
+    db:Session,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+):
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
+    log_info=db.query(Check_Logs).filter(Check_Logs.part_id==part_id).all()
+    return log_info

@@ -17,7 +17,9 @@ router = APIRouter(
 db_session = next(get_db())
 templates = Jinja2Templates(directory="templates")
 
-
+@router.get("/")
+async def re_home(request:Request):
+    return RedirectResponse(url=f"/checker/main", status_code=302)
 @router.get("/main")
 async def home(request:Request):
     category = get_category(check="check")
@@ -49,7 +51,7 @@ async def part(request:Request,part:str):
 	l_class = part.split("-")[0]
 	m_class = part.split("-")[1]
 	s_class = part.split("-")[-1]
-	label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name = "total")
+	label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name = "total",check="check")
 	error = get_error_all(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
 	page_file = f"total_charts.html"
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'l_class':l_class,'m_class':m_class,'s_class':s_class})
@@ -72,29 +74,51 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 		if get_name(db=db_session,name=search_name):	
 			data['name']=search_name
 			if start_date != None and end_date != None:
-				label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name=search_name,start_date=start_date,end_date=end_date)
+				label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name=search_name,start_date=start_date,end_date=end_date,check="check")
 				error = get_date_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name=search_name,start_date=start_date,end_date=end_date)
 			else:
 				if start_date == None:
 					start_date == datetime.date(2022,3,1).strftime("%Y-%m-%d")
 				if end_date == None:
 					end_date = datetime.date.today().strftime("%Y-%m-%d")
-				label,work= label_work(l_class=l_class,m_class=m_class,s_class=s_class,name=search_name,start_date=start_date,end_date=end_date)
+				label,work= label_work(l_class=l_class,m_class=m_class,s_class=s_class,name=search_name,start_date=start_date,end_date=end_date,check="check")
 				error = get_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name=search_name)
 			return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'l_class':l_class,'m_class':m_class,'s_class':s_class,'bar_data':label,'work':work,'error':error})
 		else:
 			return RedirectResponse(url=f"/{part}", status_code=302)
 	else:
 		if start_date != None and end_date != None:
-			label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name="term",start_date=start_date,end_date=end_date)
+			label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name="term",start_date=start_date,end_date=end_date,check="check")
 			error = get_date_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name="term",start_date=start_date,end_date=end_date)
 		else:
 			if start_date == None:
 				start_date = datetime.date(2022,3,1)
 			if end_date == None:
 				end_date = datetime.date.today().strftime("%Y-%m-%d")
-			label,work= label_work(l_class=l_class,m_class=m_class,s_class=s_class,name="term",start_date=start_date,end_date=end_date)
+			label,work= label_work(l_class=l_class,m_class=m_class,s_class=s_class,name="term",start_date=start_date,end_date=end_date,check="check")
 			error = get_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name="term")
 		search_name =f"{start_date}~{end_date}"
 		data['name'] = search_name
 		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'l_class':l_class,'m_class':m_class,'s_class':s_class,'bar_data':label,'work':work,'error':error})
+
+@router.get("/download/{part}")
+def dwonload_file(request:Request,part:str):
+	if part == "all":
+		file_name=f"all_log"
+		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+		part_list=get_check_parts(db=db_session)
+		for part in part_list:
+			l_class = part.l_class
+			m_class = part.m_class
+			s_class = part.s_class
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer,check="check")
+	else:
+		file_name=f"{part}_log"
+		l_class = part.split("-")[0]
+		m_class = part.split("-")[1]
+		s_class = part.split("-")[-1]
+		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+		make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer,check="check")
+	writer.save()
+	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
+	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"검수_{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
