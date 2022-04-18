@@ -83,13 +83,13 @@ class Error_list(Base):
 class Error(Base):
   __tablename__= 'error'
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-  raw_id = Column(Integer,ForeignKey("raw.id"))
-  raw = relationship("Raw")
-  part_id = Column(Integer,ForeignKey("part.id"))
-  part = relationship("Part")
-  error_id =Column(Integer,ForeignKey("error_list.id"))
-  error = relationship("Error_list")
   user_id = Column(Integer,ForeignKey("users.id"))
   user =  relationship("User")
+  part_id = Column(Integer,ForeignKey("part.id"))
+  part = relationship("Part")
+  file_name = Column(String(200))
+  error_id =Column(Integer,ForeignKey("error_list.id"))
+  error = relationship("Error_list")
   error_day = Column(Date)
-  
+
+#Error.__table__.create(bind=engine, checkfirst=True)
