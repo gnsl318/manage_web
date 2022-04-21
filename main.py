@@ -221,24 +221,25 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 
 @app.get("/download/{part}")
 def dwonload_file(request:Request,part:str):
-	start=time.time()
 	if part == "all":
 		file_name=f"all_log"
-		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
+		workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
 		part_list=get_parts(db=db_session)
 		for part in part_list:
 			l_class = part.l_class
 			m_class = part.m_class
 			s_class = part.s_class
-			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer)
+			ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
 	else:
 		file_name=f"{part}_log"
 		l_class = part.split("-")[0]
 		m_class = part.split("-")[1]
 		s_class = part.split("-")[-1]
-		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
-		make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer)
-	writer.save()
+		workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
+		ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+		make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+	workbook.close()
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
 	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
 

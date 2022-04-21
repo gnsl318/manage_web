@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, load_only
 from models.base import *
 import datetime
 import json
+import time
 
 ## 파트 생성
 def create_part(
@@ -62,7 +63,7 @@ def get_all_user(
     *,
     db:Session,
 ):
-    user_info = db.query(User).all()
+    user_info = db.query(User).order_by(User.employee_number).all()
     return user_info
 ## 모든 파트 가져오기
 def get_all_part(
