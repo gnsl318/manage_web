@@ -233,6 +233,7 @@
                                         <!-- 반복문을 이용하여 에러리스트를 전부 보여줄수 있을 것같음. -->
                                         {% for i,e in error.items() %}
                                         <tr>
+                                            <th><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
                                             {% for value in e %}
                                             <td>{{value}}</td>
                                             {% endfor %}

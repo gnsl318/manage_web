@@ -138,10 +138,10 @@ def get_error_all(
 ):
     error_dic={}
     part_info = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first()
-    error_info=db.query(Error).filter(Error.part_id==part_info.id).all()
+    error_info=db.query(Error).filter(and_(Error.part_id==part_info.id,Error.clear_day == None)).all()
     #error_dic['Success']=len(db.query(Logs).filter(and_(Logs.info != json.dumps("raw_file"),Part.s_class == s_class,Part.l_class==l_class,Part.m_class==m_class)).all())
     for i,error in enumerate(error_info):
-        error_dic[i] = [i,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
+        error_dic[i] = [error.id,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
     return error_dic
 ## 특정 파트 전체이름 과 유저 이름으로 result_file만 가져오기
 def get_search_log(
@@ -169,12 +169,12 @@ def get_search_error(
     error_dic={}
     part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     if name =="term":
-        error_info=db.query(Error).all()
+        error_info=db.query(Error).filter(Error.clear_day != null).all()
     else:
         user_info = db.query(User).filter(User.name==name).first()
-        error_info=db.query(Error).filter(and_(Error.user_id==user_info.id,Error.part_id==part_id)).all()
+        error_info=db.query(Error).filter(and_(Error.user_id==user_info.id,Error.part_id==part_id,Error.clear_day == None)).all()
     for i,error in enumerate(error_info):
-        error_dic[i] = [i,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
+        error_dic[i] = [error.id,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
     return error_dic
 
 ## 특정 유저 유무 검색
@@ -219,12 +219,12 @@ def get_date_search_error(
     error_dic={}
     part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     if name =="term":
-        error_info=db.query(Error).filter(and_(Error.error_day>=start_date,Error.error_day<=end_date,Error.part_id==part_id)).all()
+        error_info=db.query(Error).filter(and_(Error.error_day>=start_date,Error.error_day<=end_date,Error.part_id==part_id,Error.clear_day == None)).all()
     else:
         user_id = db.query(User).filter(User.name==name).first().id
-        error_info=db.query(Error).filter(and_(Error.user_id==user_id,Error.error_day>=start_date,Error.error_day<=end_date,Error.part_id==part_id)).all()
+        error_info=db.query(Error).filter(and_(Error.user_id==user_id,Error.error_day>=start_date,Error.error_day<=end_date,Error.part_id==part_id,Error.clear_day != null)).all()
     for i,error in enumerate(error_info):
-        error_dic[i] = [i,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
+        error_dic[i] = [error.id,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
     return error_dic
 ## 이메일로 유저 정보 가졍괴
 def get_session(
@@ -280,3 +280,13 @@ def update_part_info(
     part.check_state = check_state
     db.commit()
     return part
+
+def update_error_info(
+    *,
+    db:Session,
+    error_id:int
+):
+    error = db.query(Error).filter(Error.id == error_id).first()
+    error.clear_day = date.today().strftime("%Y%m%d")
+    db.commit()
+    return error

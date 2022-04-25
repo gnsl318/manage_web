@@ -91,5 +91,6 @@ class Error(Base):
   error_id =Column(Integer,ForeignKey("error_list.id"))
   error = relationship("Error_list")
   error_day = Column(Date)
+  clear_day = Column(Date)
 
 #Error.__table__.create(bind=engine, checkfirst=True)

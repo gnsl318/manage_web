@@ -122,6 +122,7 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 			error = get_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name="term")
 		search_name =f"{start_date}~{end_date}"
 		data['name'] = search_name
+		print(error)
 		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'l_class':l_class,'m_class':m_class,'s_class':s_class,'bar_data':label,'work':work,'error':error})
 
 @app.get("/main/login")
@@ -217,6 +218,13 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 	except:
 		return RedirectResponse(url="/main/change_part")
 
+@app.post("/main/check_error")
+async def change_error(request:Request,error_id:str = Form(None)):
+	if error_id ==None:
+		pass
+	else:
+		update_error_info(db=db_session,error_id=error_id)
+	return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/download/{part}")
