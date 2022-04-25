@@ -81,6 +81,7 @@ def label_work(**kwargs):
             except:
                 work[log_work_day] = 1
     label = dict(sorted(dict(counter).items()))
+    work = dict(sorted(dict(work).items()))
     return json.dumps(label),json.dumps(work)
 
 def make_df(db,l_class,m_class,s_class,ws,check=None):
@@ -114,6 +115,7 @@ def make_df(db,l_class,m_class,s_class,ws,check=None):
                     dic[f"{user_name}_{work_day}"][3][label] = label_count
             dic[f"{user_name}_{work_day}"][2] += labels
     row = 1
+    dic=dict(sorted(dict(dic).items()))
     for k,v in dic.items():
         ws.write(row,0,k.split("_")[0])
         ws.write(row,1,k.split("_")[1])
@@ -126,6 +128,7 @@ def make_df(db,l_class,m_class,s_class,ws,check=None):
             ws.write(row,col,f"{label}:{label_count}")
             col+=1
         row+=1
+    ws.autofilter('A1:F1')
     return ws
 
     
