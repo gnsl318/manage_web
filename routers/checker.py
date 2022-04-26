@@ -22,28 +22,28 @@ async def re_home(request:Request):
     return RedirectResponse(url=f"/checker/main", status_code=302)
 @router.get("/main")
 async def home(request:Request):
-    category = get_category(check="check")
-    part_info= get_check_parts(db=db_session)
-    data = {}
-    mean = {}
-    for part in part_info:
-        part_id = part.id
-        log_info = get_check_log(db=db_session,part_id=part_id)
-        day_work={}
-        total_count = 0
-        for log in log_info:
-            try:
-                day_work[log.work_day] +=1
-            except:
-                day_work[log.work_day] =1
-        if len(day_work) != 0:
-            mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
-        else:
-            mean[f"{part.m_class}-{part.s_class}"]=str(0)
-        total_count=sum(day_work.values())
-        data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
-    return templates.TemplateResponse('index_checker.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
-
+	request.session["check"]=True
+	category = get_category(check="check")
+	part_info=get_check_parts(db=db_session)
+	data = {}
+	mean = {}
+	for part in part_info:
+		part_id = part.id
+		log_info = get_check_log(db=db_session,part_id=part_id)
+		day_work={}
+		total_count = 0
+		for log in log_info:
+			try:
+				day_work[log.work_day] +=1
+			except:
+				day_work[log.work_day] =1
+		if len(day_work) != 0:
+			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
+		else:
+			mean[f"{part.m_class}-{part.s_class}"]=str(0)
+		total_count=sum(day_work.values())
+		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
+	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
 
 @router.get("/{part}")
 async def part(request:Request,part:str):
@@ -103,22 +103,44 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 
 @router.get("/download/{part}")
 def dwonload_file(request:Request,part:str):
-	if part == "all":
-		file_name=f"all_log"
-		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
-		part_list=get_check_parts(db=db_session)
-		for part in part_list:
-			l_class = part.l_class
-			m_class = part.m_class
-			s_class = part.s_class
-			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer,check="check")
+	if request.session["check"]:
+		if part == "all":
+			file_name=f"Check_all_log"
+			workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
+			part_list=get_check_parts(db=db_session)
+			for part in part_list:
+				l_class = part.l_class
+				m_class = part.m_class
+				s_class = part.s_class
+				ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+				make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+		else:
+			file_name=f"Check_{part}_log"
+			l_class = part.split("-")[0]
+			m_class = part.split("-")[1]
+			s_class = part.split("-")[-1]
+			workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
+			ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
 	else:
-		file_name=f"{part}_log"
-		l_class = part.split("-")[0]
-		m_class = part.split("-")[1]
-		s_class = part.split("-")[-1]
-		writer = pd.ExcelWriter(f"{os.getcwd()}/file/{file_name}.xlsx",engine='xlsxwriter')
-		make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,writer=writer,check="check")
-	writer.save()
+		if part == "all":
+			file_name=f"all_log"
+			workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
+			part_list=get_parts(db=db_session)
+			for part in part_list:
+				l_class = part.l_class
+				m_class = part.m_class
+				s_class = part.s_class
+				ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+				make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+		else:
+			file_name=f"{part}_log"
+			l_class = part.split("-")[0]
+			m_class = part.split("-")[1]
+			s_class = part.split("-")[-1]
+			workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
+			ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+	workbook.close()
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
-	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"검수_{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
+	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")

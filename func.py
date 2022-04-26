@@ -85,6 +85,7 @@ def label_work(**kwargs):
     return json.dumps(label),json.dumps(work)
 
 def make_df(db,l_class,m_class,s_class,ws,check=None):
+    print(check)
     if check==None:
         logs = get_log_all_raw(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
     else:

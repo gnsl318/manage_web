@@ -152,7 +152,7 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    {% if request.session.name %}
+                    {% if request.session.field == "Annotation" or request.session.field == "개발" or request.session.field == "운영" %}
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">{{l_class}}_{{m_class}}_{{s_class}}
                         <a class="btn btn-primary float-right" href="/download/{{l_class}}-{{m_class}}-{{s_class}}" download>
@@ -160,7 +160,7 @@
                         </a>
                     </h1>
                     {% endif %}
-                        <!-- Sidebar Toggle (Topbar) -->
+                    <!-- Sidebar Toggle (Topbar) -->
                     
 
 
