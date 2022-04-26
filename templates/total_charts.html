@@ -244,7 +244,9 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
+                                    {% if request.session.field == "Annotation" or request.session.field == "개발" %}
                                     <input class="btn btn-primary float-right" type="submit" value=clear href="#"></a>
+                                    {% endif %}
                                 </form>
                             </div>
                         </div>

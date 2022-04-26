@@ -284,9 +284,12 @@ def update_part_info(
 def update_error_info(
     *,
     db:Session,
-    error_id:int
+    error_id:int,
+    clear_user:str,
 ):
     error = db.query(Error).filter(Error.id == error_id).first()
+    clear_user_id = db.query(User).filter(User.name == clear_user)
     error.clear_day = date.today().strftime("%Y%m%d")
+    error.clear_user_id = clear_user_id
     db.commit()
     return error

@@ -223,7 +223,7 @@ async def change_error(request:Request,error_id:str = Form(None)):
 	if error_id ==None:
 		pass
 	else:
-		update_error_info(db=db_session,error_id=error_id)
+		update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
 	return RedirectResponse(url="/", status_code=302)
 
 

@@ -84,7 +84,7 @@ class Error(Base):
   __tablename__= 'error'
   id = Column(Integer, primary_key=True, autoincrement=True, index=True)
   user_id = Column(Integer,ForeignKey("users.id"))
-  user =  relationship("User")
+  user =  relationship("User",foreign_keys=[user_id])
   part_id = Column(Integer,ForeignKey("part.id"))
   part = relationship("Part")
   file_name = Column(String(200))
@@ -92,5 +92,7 @@ class Error(Base):
   error = relationship("Error_list")
   error_day = Column(Date)
   clear_day = Column(Date)
+  clear_user_id = Column(Integer,ForeignKey("users.id"))
+  clear_user = relationship("User",foreign_keys=[clear_user_id])
 
 #Error.__table__.create(bind=engine, checkfirst=True)
