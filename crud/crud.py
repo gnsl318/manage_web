@@ -28,7 +28,7 @@ def create_part(
             start_day=start_date,
             end_day=end_date,
             state = True,
-            check_status = True,
+            check_state = True,
         )
         db.add(new_part)
         db.commit()
