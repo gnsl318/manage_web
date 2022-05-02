@@ -61,11 +61,11 @@ async def home(request:Request):
 			except:
 				day_work[log.work_day] =1
 		if len(day_work) != 0:
-			mean[f"{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
+			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
 		else:
-			mean[f"{part.m_class}-{part.s_class}"]=str(0)
+			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=str(0)
 		total_count=sum(day_work.values())
-		data[f"{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
+		data[f"{part.l_class}-{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
 	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
 
 

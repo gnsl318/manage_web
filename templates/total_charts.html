@@ -49,12 +49,12 @@
             {% for m_class,s_class_list in m_dic.items() %}
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{m_class}}"
-                    aria-expanded="true" aria-controls="collapse{{m_class}}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{l_class}}{{m_class}}"
+                    aria-expanded="true" aria-controls="collapse{{l_class}}{{m_class}}">
                     <i class="fas fa-fw fa-cog"></i>
                     <span>{{ m_class }}</span>
                 </a>
-                <div id="collapse{{m_class}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapse{{l_class}}{{m_class}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Sub</h6>
                         {% for s_class in s_class_list %}

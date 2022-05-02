@@ -21,6 +21,7 @@ def get_category(check=None):
         if l_class != part.l_class:
             l_class = part.l_class
             m_dic={}	
+            s_class_list=[]
             if m_class != part.m_class:
                 m_class = part.m_class
                 s_class_list = [part.s_class]
