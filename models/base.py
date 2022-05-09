@@ -51,7 +51,7 @@ class Logs(Base):
   user =  relationship("User")
   work_day = Column(Date)
   file_name = Column(String(200))
-  info = Column(String(200))
+  info = Column(String(3000))
 
 class Check_Logs(Base):
   __tablename__ = "check_log"
