@@ -212,7 +212,7 @@ async def change_info_search(request:Request,l_class: str = Form(...),m_class: s
 		return RedirectResponse(url="/main/change_part", status_code=302)
 
 	
-@app.post("/main/change_part_do")
+@app.post("/main/change_`part_do")
 async def change_part(request:Request,l_class: str = Form(...),m_class: str = Form(...),s_class: str = Form(...),max_count:int=Form(...),start_date: date = Form(...),end_date: date = Form(...),state:bool = Form(None),check_state:bool = Form(None)):
 	try:
 		update_part_info(db=db_session,part_id=request.session["part.id"],l_class=l_class,m_class=m_class,s_class=s_class,max_count=max_count,start_date=start_date,end_date=end_date,state=state,check_state=check_state)
@@ -222,10 +222,12 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 
 @app.post("/main/check_error")
 async def change_error(request:Request,error_id:str = Form(None)):
-	if error_id ==None:
+	error_data = await request.form()
+	try:
+		for _,error_id in error_data.items():
+			update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+	except:
 		pass
-	else:
-		update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
 	return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
 
 

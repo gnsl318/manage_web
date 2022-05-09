@@ -204,7 +204,7 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <form class="user" action = "/main/check_error" method = "post">
+                                <form class="error_id_list" action = "/main/check_error" method = "post">
                                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
@@ -236,7 +236,8 @@
                                             
                                             {% for i,e in error.items() %}
                                             <tr>
-                                                <th><input class="form-group" type="checkbox" name="error_id" value={{error[i][0]}} id="error_id"></th>
+                                                <th><input class="form-group" type="checkbox" name="error_{{i}}" value={{error[i][0]}}></th>
+                                                 <!-- id="error_id"> -->
                                                 {% for value in e %}
                                                 <td>{{value}}</td>
                                                 {% endfor %}
@@ -245,7 +246,7 @@
                                         </tbody>
                                     </table>
                                     {% if request.session.field == "Annotation" or request.session.field == "개발" %}
-                                    <input class="btn btn-primary float-right" type="submit" value=clear href="#"></a>
+                                    <input class="btn btn-primary float-right" type="submit" value=clear href="."></a>
                                     {% endif %}
                                 </form>
                             </div>

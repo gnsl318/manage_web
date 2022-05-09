@@ -54,6 +54,7 @@ async def part(request:Request,part:str):
 	label,work = label_work(l_class=l_class,m_class=m_class,s_class=s_class,name = "total",check="check")
 	error = get_error_all(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class)
 	page_file = f"total_charts.html"
+	request.session['part']=part
 	return templates.TemplateResponse(page_file,{'request':request,'category':category,'bar_data':label,'work':work,'error':error,'l_class':l_class,'m_class':m_class,'s_class':s_class})
 
 
