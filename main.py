@@ -260,7 +260,7 @@ def dwonload_file(request:Request,part:str):
 				m_class = part.m_class
 				s_class = part.s_class
 				ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
-				make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+				make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws,check=True)
 		else:
 			file_name=f"Check_{part}_log"
 			l_class = part.split("-")[0]
@@ -268,7 +268,7 @@ def dwonload_file(request:Request,part:str):
 			s_class = part.split("-")[-1]
 			workbook = xlsxwriter.Workbook(f"{os.getcwd()}/file/{file_name}.xlsx")
 			ws = workbook.add_worksheet(f"{l_class}-{m_class}-{s_class}")
-			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws)
+			make_df(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,ws=ws,check=True)
 	else:
 		if part == "all":
 			file_name=f"all_log"
