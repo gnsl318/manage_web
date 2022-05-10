@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, load_only
 from models.base import *
 import datetime
 import json
+import time
 ## 특정 파트_id로 check_log / result_file만 가져오기
 def get_check_log(
     *,

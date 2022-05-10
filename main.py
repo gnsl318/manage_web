@@ -223,18 +223,26 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 		return RedirectResponse(url="/main/change_part")
 
 @app.post("/main/check_error")
-async def change_error(request:Request,error_id:str = Form(None)):
+async def change_error(request:Request):
 	error_data = await request.form()
 	try:
-		for _,error_id in error_data.items():
-			if request.session['check']:
-				update_check_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
-				return RedirectResponse(url=f"checker/{request.session['part']}", status_code=302)
+		for key,error_id in error_data.items():
+			if key != "dataTable_length":
+				try:
+					if request.session['check']:
+						url=f"/checker/{request.session['part']}"
+						update_check_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+					else:
+						url=f"/{request.session['part']}"
+						update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+				except Exception as e:
+					pass
 			else:
-				update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
-				return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
-	except:
-		pass
+				pass
+		return RedirectResponse(url, status_code=302)
+	except Exception as e:
+		print(e)
+		return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
 	
 	
 

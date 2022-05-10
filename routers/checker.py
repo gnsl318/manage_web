@@ -147,3 +147,4 @@ def dwonload_file(request:Request,part:str):
 	workbook.close()
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
 	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
+
