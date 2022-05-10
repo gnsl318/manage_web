@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 from crud.crud import *
+from crud.check_crud import *
 from db.session import *
 import json
 import collections
