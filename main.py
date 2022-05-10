@@ -223,15 +223,19 @@ async def change_part(request:Request,l_class: str = Form(...),m_class: str = Fo
 
 @app.post("/main/check_error")
 async def change_error(request:Request,error_id:str = Form(None)):
-	if request.session['check']:
-		return RedirectResponse(url=f"/checker/main/check_error")
 	error_data = await request.form()
 	try:
 		for _,error_id in error_data.items():
-			update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+			if request.session['check']:
+				update_check_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+				return RedirectResponse(url=f"checker/{request.session['part']}", status_code=302)
+			else:
+				update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+				return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
 	except:
 		pass
-	return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
+	
+	
 
 
 @app.get("/download/{part}")
