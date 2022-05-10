@@ -133,3 +133,16 @@ def get_check_log_all_raw(
     part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
     log_info=db.query(Check_Logs).filter(Check_Logs.part_id==part_id).all()
     return log_info
+
+def update_check_error_info(
+    *,
+    db:Session,
+    error_id:int,
+    clear_user:str,
+):
+    error = db.query(Check_Error).filter(Check_Error.id == error_id).first()
+    clear_user_id = db.query(User).filter(User.name == clear_user).first().id
+    error.clear_day = date.today().strftime("%Y%m%d")
+    error.clear_user_id = clear_user_id
+    db.commit()
+    return error

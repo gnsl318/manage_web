@@ -147,3 +147,12 @@ def dwonload_file(request:Request,part:str):
 	workbook.close()
 	file_path=os.path.join(os.getcwd(),f"file/{file_name}.xlsx")
 	return FileResponse(path=file_path,media_type='application/octet-stream',filename=f"{file_name}_{datetime.datetime.now().strftime('%Y/%m/%d %H/%M')}.xlsx")
+@router.post("/main/check_error")
+async def change_error(request:Request,error_id:str = Form(None)):
+	error_data = await request.form()
+	try:
+		for _,error_id in error_data.items():
+			update_check_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
+	except:
+		pass
+	return RedirectResponse(url=f"/{request.session['part']}", status_code=302)
