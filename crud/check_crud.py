@@ -46,6 +46,27 @@ def get_check_error_all(
     for i,error in enumerate(error_info):
         error_dic[i] = [error.id,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
     return error_dic
+
+def get_search_error(
+    *,
+    db:Session,
+    l_class:str,
+    m_class:str,
+    s_class:str,
+    name:str,
+):
+
+    error_dic={}
+    part_id = db.query(Part).filter(and_((Part.s_class == s_class),(Part.l_class==l_class),(Part.m_class==m_class))).first().id
+    if name =="term":
+        error_info=db.query(Check_Error).filter(Check_Error.clear_day == None).all()
+    else:
+        user_info = db.query(User).filter(User.name==name).first()
+        error_info=db.query(Check_Error).filter(and_(Check_Error.user_id==user_info.id,Check_Error.part_id==part_id,Check_Error.clear_day == None)).all()
+    for i,error in enumerate(error_info):
+        error_dic[i] = [error.id,error.user.name,error.part.l_class,error.part.m_class,error.part.s_class,error.file_name,error.error.error,error.error_day]
+    return error_dic
+
 ## 특정 파트 전체이름 과 유저 이름으로 result_file만 가져오기
 def get_search_check_log(
     *,

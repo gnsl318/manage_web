@@ -89,6 +89,8 @@ async def serch(request:Request,part:str):
 	return RedirectResponse(url=f"/{part}", status_code=302)
 @app.post("/{part}/search")
 async def search(request:Request,part:str,search_name: str = Form(None),start_date:Optional[date]=Form(None),end_date:Optional[date]=Form(None)):
+	if request.session['check']:
+		return RedirectResponse(url=f"/checker/{part}/search")
 	category = get_category()
 	data={}
 	l_class = part.split("-")[0]
@@ -124,7 +126,6 @@ async def search(request:Request,part:str,search_name: str = Form(None),start_da
 			error = get_search_error(db=db_session,l_class=l_class,m_class=m_class,s_class=s_class,name="term")
 		search_name =f"{start_date}~{end_date}"
 		data['name'] = search_name
-		print(error)
 		return templates.TemplateResponse('/search_charts.html',{'request':request,'category':category,'name':search_name,'l_class':l_class,'m_class':m_class,'s_class':s_class,'bar_data':label,'work':work,'error':error})
 
 @app.get("/main/login")

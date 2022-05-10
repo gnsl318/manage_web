@@ -62,7 +62,7 @@ class Check_Logs(Base):
   user =  relationship("User")
   work_day = Column(Date)
   file_name = Column(String(200))
-  info = Column(String(200))
+  info = Column(String(3000))
 
 class Test_log(Base):
   __tablename__ = "test_log"
@@ -110,5 +110,3 @@ class Check_Error(Base):
   clear_day = Column(Date)
   clear_user_id = Column(Integer,ForeignKey("users.id"))
   clear_user = relationship("User",foreign_keys=[clear_user_id])
-
-#Check_Error.__table__.create(bind=engine, checkfirst=True)
