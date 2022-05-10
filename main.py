@@ -236,6 +236,7 @@ async def change_error(request:Request):
 						url=f"/{request.session['part']}"
 						update_error_info(db=db_session,error_id=error_id,clear_user=request.session["name"])
 				except Exception as e:
+					print(e)
 					pass
 			else:
 				pass
