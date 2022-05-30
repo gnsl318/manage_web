@@ -50,29 +50,34 @@ async def home(request:Request):
 	part_info=get_parts(db=db_session)
 	data = {}
 	mean = {}
-
+	count = {}
 	for part in part_info:
 		part_id = part.id
 		log_info = get_log(db=db_session,part_id=part_id)
 		day_work={}
 		total_count = 0
+		worker=[]
 		for log in log_info:
+			worker.append(log.user_id)
 			try:
 				day_work[log.work_day] +=1
 			except:
 				day_work[log.work_day] =1
 		if len(day_work) != 0:
-			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=str(int(sum(day_work.values())/len(day_work.keys())))
+			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=f"{str(int(sum(day_work.values())/len(day_work.keys())))}:{len(set(worker))}"
 		else:
-			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=str(0)
+			mean[f"{part.l_class}-{part.m_class}-{part.s_class}"]=f"{str(0)}:0"
 		total_count=sum(day_work.values())
 		data[f"{part.l_class}-{part.m_class}-{part.s_class}"]= int((total_count/part.max_count)*100)
-	return templates.TemplateResponse('index.html',{'request':request,'data':data,'category':category,'bar_data':json.dumps(mean)})
+		count[f"{part.l_class}-{part.m_class}-{part.s_class}"]=f"{total_count}/{part.max_count}"
+	return templates.TemplateResponse('index.html',{'request':request,'data':data,'count':count,'category':category,'bar_data':mean})
 
 
 
 @app.get("/{part}")
 async def part(request:Request,part:str):
+	if request.session['check']:
+		return RedirectResponse(url=f"/checker/{part}")
 	category = get_category()
 	l_class = part.split("-")[0]
 	m_class = part.split("-")[1]
@@ -162,6 +167,8 @@ async def add_user(request:Request,Employee_number: str = Form(...),Name: str = 
 async def change_info(request:Request):
 	page_file = f"change_user.html"
 	user_info=get_all_user(db=db_session)
+	for user in user_info:
+		print(user.employee_number,user.name,user.field,user.email,user.state)
 	user_name = get_user_name(user_info)
 	return templates.TemplateResponse(page_file,{'request':request,'user_name':user_name})
 

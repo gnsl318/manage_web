@@ -286,6 +286,7 @@ def update_error_info(
     db:Session,
     error_id:int,
     clear_user:str,
+    #clear_day:str,
 ):
     error = db.query(Error).filter(Error.id == error_id).first()
     clear_user_id = db.query(User).filter(User.name == clear_user).first().id
